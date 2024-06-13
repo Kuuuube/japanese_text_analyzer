@@ -12,11 +12,14 @@ fn main() {
     let args: Vec<String> = std::env::args().collect();
     let start_directory_path = args.get(1).unwrap();
     println!("Finding json files in {}", start_directory_path);
-    let json_files = get_json_files(start_directory_path).unwrap();
-    println!("Processing {} files", json_files.len());
-    let lines = get_json_file_data(json_files);
 
-    println!("Loading dictionary");
+    let json_files = get_json_files(start_directory_path).unwrap();
+    println!("Found {} json files", json_files.len());
+
+    let lines = get_json_file_data(json_files);
+    println!("Extracted {} lines of text", lines.len());
+
+    println!("Loading tokenizer dictionary");
     let dict = make_sudachi_dict().unwrap();
     let tokenizer = StatelessTokenizer::new(&dict);
 
@@ -28,8 +31,8 @@ fn main() {
             morpheme_surfaces.push(morpheme.surface().to_string());
         }
     }
-    println!("{:?}", morpheme_surfaces);
-    println!("Words found: {}", morpheme_surfaces.len());
+    println!("{}", morpheme_surfaces.join("|"));
+    println!("Morphemes found: {}", morpheme_surfaces.len());
 }
 
 fn make_sudachi_dict() -> Result<JapaneseDictionary, Box<dyn std::error::Error>> {
