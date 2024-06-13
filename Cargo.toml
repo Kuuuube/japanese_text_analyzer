@@ -5,3 +5,4 @@ edition = "2021"
 
 [dependencies]
 sudachi = { git = "https://github.com/Kuuuube/sudachi.rs" }
+zstd-safe = { version = "7.1.0", features = ["experimental", "std"] }
