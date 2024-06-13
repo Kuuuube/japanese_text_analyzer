@@ -6,7 +6,7 @@ use sudachi::dic::storage::{Storage, SudachiDicData};
 use sudachi::prelude::*;
 
 fn main() {
-    let dict = make_sudachi_dict();
+    let dict = make_sudachi_dict().unwrap();
     let tokenizer = StatelessTokenizer::new(&dict);
     let line: String = "狐が大好き　何を見せてくれるんだ　わぁああっ！！".to_string();
 
@@ -18,10 +18,10 @@ fn main() {
     println!("Words found: {}", morphemes.len());
 }
 
-fn make_sudachi_dict() -> JapaneseDictionary {
+fn make_sudachi_dict() -> Result<JapaneseDictionary, SudachiError> {
     let embedded_dictionary = include_bytes!("./system_full.dic");
     let dictionary_file_data = SudachiDicData::new(Storage::Borrowed(embedded_dictionary));
-    let config = Config::new_embedded().unwrap();
-    let dictionary = JapaneseDictionary::from_embedded_storage(&config, dictionary_file_data).unwrap();
-    return dictionary;
+    let config = Config::new_embedded()?;
+    let dictionary = JapaneseDictionary::from_embedded_storage(&config, dictionary_file_data)?;
+    return Ok(dictionary);
 }
