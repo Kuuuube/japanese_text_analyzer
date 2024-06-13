@@ -1,6 +1,6 @@
 use sudachi::analysis::stateless_tokenizer::StatelessTokenizer;
 use sudachi::analysis::Tokenize;
-use sudachi::config::{Config, ConfigBuilder};
+use sudachi::config::Config;
 use sudachi::dic::dictionary::JapaneseDictionary;
 use sudachi::dic::storage::{Storage, SudachiDicData};
 use sudachi::prelude::*;
