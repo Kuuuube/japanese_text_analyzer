@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use sudachi::analysis::stateless_tokenizer::StatelessTokenizer;
 use sudachi::analysis::Tokenize;
 use sudachi::config::Config;
@@ -7,9 +9,16 @@ use sudachi::prelude::*;
 use serde::Deserialize;
 
 fn main() {
+    let args: Vec<String> = std::env::args().collect();
+    let start_directory_path = args.get(1).unwrap();
+    println!("Finding json files in {}", start_directory_path);
+    let json_files = get_json_files(start_directory_path).unwrap();
+    println!("Processing {} files", json_files.len());
+    let lines = get_json_file_data(json_files);
+
+    println!("Loading dictionary");
     let dict = make_sudachi_dict().unwrap();
     let tokenizer = StatelessTokenizer::new(&dict);
-    let lines = get_json_file_data();
 
     let mut morpheme_surfaces: Vec<String> = Default::default();
 
@@ -38,12 +47,34 @@ fn decode_zstd(data: &[u8]) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
     return Ok(decompressed)
 }
 
-fn get_json_file_data() -> Vec<String> {
-    let json_data = std::fs::read_to_string("./mokuro_ocr_sample.json").unwrap();
-    let parsed_json: MokuroJson = serde_json::from_str(&json_data).unwrap();
+fn get_json_files(directory: &str) -> Result<Vec<std::path::PathBuf>, Box<dyn std::error::Error>> {
+    let mut json_files: Vec<std::path::PathBuf> = Default::default();
+    for entry in walkdir::WalkDir::new(directory)
+            .follow_links(true)
+            .into_iter()
+            .filter_map(|e| e.ok()) {
+        let file_name = entry.file_name().to_string_lossy();
+
+        if file_name.to_string().ends_with(".json") {
+            json_files.push(entry.into_path());
+        }
+    }
+    return Ok(json_files);
+}
+
+fn get_json_file_data(filepaths: Vec<PathBuf>) -> Vec<String> {
     let mut lines: Vec<String> = Default::default();
-    for block in parsed_json.blocks {
-        lines.push(block.lines.concat());
+    for filepath in filepaths {
+        let json_data = std::fs::read_to_string(filepath).unwrap();
+        match serde_json::from_str::<MokuroJson>(&json_data) {
+            Ok(ok) => {
+                for block in ok.blocks {
+                    lines.push(block.lines.concat());
+                }
+            }
+            Err(_) => {}
+        }
+
     }
     return lines;
 }
