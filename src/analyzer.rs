@@ -20,25 +20,25 @@ pub fn filter_non_kanji(string: &String) -> Vec<char> {
 
 fn check_if_kanji(codepoint: u32) -> bool {
     //CJK Unified Ideographs
-    if codepoint > 0x4E00 && codepoint < 0x9FFF ||
+    if codepoint >= 0x4E00 && codepoint <= 0x9FFF ||
     //CJK Unified Ideographs Extension A
-    codepoint > 0x3400 && codepoint < 0x4DBF ||
+    codepoint >= 0x3400 && codepoint <= 0x4DBF ||
     //CJK Unified Ideographs Extension B
-    codepoint > 0x20000 && codepoint < 0x2A6DF ||
+    codepoint >= 0x20000 && codepoint <= 0x2A6DF ||
     //CJK Unified Ideographs Extension C
-    codepoint > 0x2A700 && codepoint < 0x2B73F ||
+    codepoint >= 0x2A700 && codepoint <= 0x2B73F ||
     //CJK Unified Ideographs Extension D
-    codepoint > 0x2B740 && codepoint < 0x2B81F ||
+    codepoint >= 0x2B740 && codepoint <= 0x2B81F ||
     //CJK Unified Ideographs Extension E
-    codepoint > 0x2B820 && codepoint < 0x2CEAF ||
+    codepoint >= 0x2B820 && codepoint <= 0x2CEAF ||
     //CJK Unified Ideographs Extension F
-    codepoint > 0x2CEB0 && codepoint < 0x2EBEF ||
+    codepoint >= 0x2CEB0 && codepoint <= 0x2EBEF ||
     //CJK Unified Ideographs Extension G
-    codepoint > 0x30000 && codepoint < 0x3134F ||
+    codepoint >= 0x30000 && codepoint <= 0x3134F ||
     //CJK Unified Ideographs Extension H
-    codepoint > 0x31350 && codepoint < 0x323AF ||
+    codepoint >= 0x31350 && codepoint <= 0x323AF ||
     //CJK Compatibility Ideographs
-    codepoint > 0xF900 && codepoint < 0xFAFF {
+    codepoint >= 0xF900 && codepoint <= 0xFAFF {
         return true;
     }
     return false;
