@@ -1,6 +1,7 @@
 use std::collections::HashMap;
+use std::hash::Hash;
 
-pub fn generate_occurrence_list<T: ToOwned<Owned = T> + Eq + std::hash::Hash>(morpheme_surfaces: &Vec<T>) -> HashMap<T, i32> {
+pub fn generate_occurrence_list<T: ToOwned<Owned = T> + Eq + Hash>(morpheme_surfaces: &Vec<T>) -> HashMap<T, i32> {
     return morpheme_surfaces.into_iter().fold(HashMap::new(), |mut map, c| {*map.entry(c.to_owned()).or_insert(0) += 1; map});
 }
 
