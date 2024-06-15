@@ -5,7 +5,7 @@ Analysis tool for ocr files in Mokuro processed manga.
 ## Usage
 
 ```
-japanese_text_analyzer directory_path
+japanese_text_analyzer mokuro_manga_directory_path
 ```
 
 ## Sample Output
