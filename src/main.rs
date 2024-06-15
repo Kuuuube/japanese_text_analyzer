@@ -66,7 +66,7 @@ fn main() {
         start_directory_path,
         "----------------------------------------------------------------------------",
         "Number of Japanese characters: ", stats.char_count,
-        "Number of Kanji characters: ", stats.kanji_count,
+        "Number of kanji characters: ", stats.kanji_count,
         "Number of unique kanji: ", stats.unique_kanji_count,
         "Number of unique kanji appearing only once: ", stats.kanji_count_single_occurrence, analyzer::get_fancy_percentage(stats.unique_kanji_count, stats.kanji_count_single_occurrence),
         "Number of words in total: ", stats.word_count,
