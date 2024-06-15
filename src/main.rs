@@ -25,6 +25,7 @@ fn main() {
 
     let mut morpheme_surfaces: Vec<String> = Default::default();
 
+    println!("Running tokenizer");
     for line in lines {
         let morphemes = tokenizer.tokenize(&line, Mode::C, false).unwrap();
         for morpheme in morphemes.iter() {
