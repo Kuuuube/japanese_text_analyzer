@@ -27,13 +27,17 @@ fn main() {
         }
     }
 
+    let characters = morpheme_surfaces.join("");
+
     let word_occurrence_list = analyzer::generate_occurrence_list(&morpheme_surfaces);
+    let characters_occurrence_list = analyzer::generate_occurrence_list(&characters.chars().collect());
+
     let word_occurrence_list_sorted = analyzer::sort_occurrence_list(&word_occurrence_list);
     let word_count_single_occurrence = analyzer::find_single_occurrences(&word_occurrence_list);
-    let characters = morpheme_surfaces.join("");
-    let characters_occurrence_list = analyzer::generate_occurrence_list(&characters.chars().collect());
+
     let characters_count_single_occurrence = analyzer::find_single_occurrences(&characters_occurrence_list);
     let kanji_count_single_occurrence = analyzer::filter_non_kanji(&characters_count_single_occurrence);
+
     let japanese_characters = analyzer::filter_non_japanese(&characters.chars().collect());
     let kanji_characters = analyzer::filter_non_kanji(&characters.chars().collect());
     let mut unique_kanji_characters: Vec<char> = kanji_characters.clone();
