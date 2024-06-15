@@ -12,10 +12,33 @@ pub fn sort_occurrence_list(occurrence_list: &HashMap<String, i32>) -> Vec<(Stri
 
 pub fn find_single_occurrences(occurrence_list: &HashMap<String, i32>) -> Vec<String> {
     return occurrence_list.iter().fold(Vec::new(), |mut map: Vec<String>, x| {if *x.1 == 1 {map.push(x.0.to_owned())}; map});
+
+pub fn filter_non_japanese(string: &String) -> Vec<char> {
+    return string.chars().filter(|x| check_if_japanese(*x as u32)).collect();
 }
 
 pub fn filter_non_kanji(string: &String) -> Vec<char> {
     return string.chars().filter(|x| check_if_kanji(*x as u32)).collect();
+}
+
+fn check_if_japanese(codepoint: u32) -> bool {
+    //Kanji
+    if check_if_kanji(codepoint) ||
+    //Hiragana (punctuation excluded: U+3099..U+309E; full range: U+3040..U+309F)
+    codepoint >= 0x3040 && codepoint <= 0x3096 || codepoint == 0x309F ||
+    //Katakana (punctuation excluded U+30A0, U+30FB..U+30FF; full range: U+30A0..U+30FF)
+    codepoint >= 0x30A1 && codepoint <= 0x30FA ||
+    //Half-width Katakana (non-japanese excluded: U+FF01..U+FF63, U+FFA0..U+FFEF; japanese sound marks excluded: U+FF9E..U+FF9F; japanese punctuation excluded: U+FF64..U+FF65; full range: U+FF00..U+FFEF)
+    codepoint >= 0xFF66 && codepoint <= 0xFF9D ||
+    //Small Kana Extension
+    codepoint >= 0x1B130 && codepoint <= 0x1B16F ||
+    //Kana Extended A (Hentaigana and reserved small kana punctuation) (Reserved punctuation excluded: U+1B12B..U+1B12F; full range: U+1B100..U+1B12F)
+    codepoint >= 0x1B100 && codepoint <= 0x1B122 ||
+    //Kana Supplement (Hentaigana)
+    codepoint >= 0x1B000 && codepoint <= 0x1B0FF {
+        return true;
+    }
+    return false;
 }
 
 fn check_if_kanji(codepoint: u32) -> bool {
