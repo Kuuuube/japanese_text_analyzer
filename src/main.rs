@@ -1,6 +1,6 @@
-mod json_handler;
-mod dict_handler;
 mod analyzer;
+mod dict_handler;
+mod json_handler;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -21,7 +21,13 @@ fn main() {
 
     println!("Running tokenizer");
     for line in lines {
-        let morphemes = sudachi::analysis::Tokenize::tokenize(&tokenizer, &line, sudachi::analysis::Mode::C, false).unwrap();
+        let morphemes = sudachi::analysis::Tokenize::tokenize(
+            &tokenizer,
+            &line,
+            sudachi::analysis::Mode::C,
+            false,
+        )
+        .unwrap();
         for morpheme in morphemes.iter() {
             morpheme_surfaces.push(morpheme.surface().to_string());
         }

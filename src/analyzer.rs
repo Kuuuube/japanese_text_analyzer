@@ -2,25 +2,48 @@ use std::collections::HashMap;
 use std::hash::Hash;
 
 pub fn generate_occurrence_list<T: ToOwned<Owned = T> + Eq + Hash>(morpheme_surfaces: &Vec<T>) -> HashMap<T, i32> {
-    return morpheme_surfaces.into_iter().fold(HashMap::new(), |mut map, c| {*map.entry(c.to_owned()).or_insert(0) += 1; map});
+    return morpheme_surfaces
+        .into_iter()
+        .fold(HashMap::new(), |mut map, c| {
+            *map.entry(c.to_owned()).or_insert(0) += 1;
+            map
+        });
 }
 
 pub fn sort_occurrence_list(occurrence_list: &HashMap<String, i32>) -> Vec<(String, i32)> {
-    let mut occurrence_list_sorted: Vec<(String, i32)> = occurrence_list.iter().map(|x| (x.0.to_owned(), x.1.to_owned())).collect();
+    let mut occurrence_list_sorted: Vec<(String, i32)> = occurrence_list
+        .iter()
+        .map(|x| (x.0.to_owned(), x.1.to_owned()))
+        .collect();
     occurrence_list_sorted.sort_by(|a, b| b.1.cmp(&a.1));
     return occurrence_list_sorted;
 }
 
 pub fn find_single_occurrences<T: ToOwned<Owned = T>>(occurrence_list: &HashMap<T, i32>) -> Vec<T> {
-    return occurrence_list.iter().fold(Vec::new(), |mut map: Vec<T>, x: (&T, &i32)| {if *x.1 == 1 {map.push(x.0.to_owned())}; map});
+    return occurrence_list
+        .iter()
+        .fold(Vec::new(), |mut map: Vec<T>, x: (&T, &i32)| {
+            if *x.1 == 1 {
+                map.push(x.0.to_owned())
+            };
+            map
+        });
 }
 
 pub fn filter_non_japanese(chars: &Vec<char>) -> Vec<char> {
-    return chars.to_owned().into_iter().filter(|x| check_if_japanese(*x as u32)).collect();
+    return chars
+        .to_owned()
+        .into_iter()
+        .filter(|x| check_if_japanese(*x as u32))
+        .collect();
 }
 
 pub fn filter_non_kanji(chars: &Vec<char>) -> Vec<char> {
-    return chars.to_owned().into_iter().filter(|x| check_if_kanji(*x as u32)).collect();
+    return chars
+        .to_owned()
+        .into_iter()
+        .filter(|x| check_if_kanji(*x as u32))
+        .collect();
 }
 
 fn check_if_japanese(codepoint: u32) -> bool {
