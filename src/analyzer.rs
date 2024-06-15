@@ -10,8 +10,9 @@ pub fn sort_occurrence_list(occurrence_list: &HashMap<String, i32>) -> Vec<(Stri
     return occurrence_list_sorted;
 }
 
-pub fn find_single_occurrences(occurrence_list: &HashMap<String, i32>) -> Vec<String> {
-    return occurrence_list.iter().fold(Vec::new(), |mut map: Vec<String>, x| {if *x.1 == 1 {map.push(x.0.to_owned())}; map});
+pub fn find_single_occurrences<T: ToOwned<Owned = T>>(occurrence_list: &HashMap<T, i32>) -> Vec<T> {
+    return occurrence_list.iter().fold(Vec::new(), |mut map: Vec<T>, x: (&T, &i32)| {if *x.1 == 1 {map.push(x.0.to_owned())}; map});
+}
 
 pub fn filter_non_japanese(string: &String) -> Vec<char> {
     return string.chars().filter(|x| check_if_japanese(*x as u32)).collect();
