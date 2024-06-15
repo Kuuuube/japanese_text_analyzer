@@ -8,6 +8,8 @@ Analysis tool for ocr files in Mokuro processed manga.
 japanese_text_analyzer mokuro_manga_directory_path
 ```
 
+Note: The Mokuro `_ocr` json files **must** be present.
+
 ## Sample Output
 
 `analysis.txt`
