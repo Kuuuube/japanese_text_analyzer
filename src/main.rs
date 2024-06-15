@@ -30,9 +30,10 @@ fn main() {
     let occurrence_list = analyzer::generate_occurrence_list(&morpheme_surfaces);
     let occurrence_list_sorted = analyzer::sort_occurrence_list(&occurrence_list);
     let single_occurrences = analyzer::find_single_occurrences(&occurrence_list);
+    let characters = morpheme_surfaces.join("");
 
     let stats: AnalysisStats = AnalysisStats {
-        char_count: 0,
+        char_count: characters.len(),
         kanji_count: 0,
         unique_kanji_count: 0,
         word_count: morpheme_surfaces.len(),
