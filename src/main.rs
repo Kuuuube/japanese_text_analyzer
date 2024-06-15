@@ -43,10 +43,18 @@ fn main() {
         unique_kanji_count: unique_kanji_characters.len(),
         word_count: morpheme_surfaces.len(),
         unique_word_count: occurrence_list_sorted.len(),
-        unique_word_count_single_occurrence: single_occurrences.len(),
+        word_count_single_occurrence: word_count_single_occurrence.len(),
     };
 
-    println!("{:?}", stats);
+    println!("{}{}\n{}{}\n{}{}\n{}{}\n{}{}\n{}{}\n{}{}",
+        "Number of Japanese characters: ", stats.char_count,
+        "Number of unique kanji: ", stats.unique_kanji_count,
+        "Number of kanji appearing only once: ", stats.kanji_count_single_occurrence,
+        "Number of words in total: ", stats.word_count,
+        "Number of unique words: ", stats.unique_word_count,
+        "Number of words appearing only once: ", stats.word_count_single_occurrence,
+        "Average length of a sentence: ", ""
+    );
 }
 
 #[derive(Debug, Default)]
@@ -54,7 +62,8 @@ struct AnalysisStats {
     char_count: usize,
     kanji_count: usize,
     unique_kanji_count: usize,
+    kanji_count_single_occurrence: usize,
     word_count: usize,
     unique_word_count: usize,
-    unique_word_count_single_occurrence: usize,
+    word_count_single_occurrence: usize,
 }
