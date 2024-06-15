@@ -17,6 +17,9 @@ jobs:
       - name: Setup dependencies
         run: rustup update stable && rustup default stable
 
+      - name: Setup Sudachi Dict
+        run: ./setup.sh
+
       - name: Build
         run: cargo build --all --release && strip target/release/japanese_text_analyzer && tar -czvf target/release/japanese_text_analyzer_${{ github.ref_name }}_linux_x64.tar.gz -C target/release/ japanese_text_analyzer
 
@@ -40,6 +43,9 @@ jobs:
 
       - name: Setup dependencies
         run: rustup update stable && rustup default stable
+
+      - name: Setup Sudachi Dict
+        run: ./setup.bat
 
       - name: Build
         run: cargo build --all --release && powershell Compress-Archive target/release/japanese_text_analyzer.exe target/release/japanese_text_analyzer_${{ github.ref_name }}_windows_x64.zip
