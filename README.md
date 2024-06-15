@@ -17,7 +17,7 @@ Note: The Mokuro `_ocr` json files **must** be present.
 ./sample_manga/
 ----------------------------------------------------------------------------
 Number of Japanese characters: 43811
-Number of Kanji characters: 10952
+Number of kanji characters: 10952
 Number of unique kanji: 1082
 Number of unique kanji appearing only once: 285 (26.34% of unique kanji)
 Number of words in total: 29219
