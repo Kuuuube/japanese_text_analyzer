@@ -1,5 +1,6 @@
 mod json_handler;
 mod dict_handler;
+mod analyzer;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -26,7 +27,8 @@ fn main() {
         }
     }
 
+    analyzer::analyze_morphemes(&morpheme_surfaces);
+
     println!("{}", morpheme_surfaces.join("|"));
     println!("Morphemes found: {}", morpheme_surfaces.len());
 }
-
