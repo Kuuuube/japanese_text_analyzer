@@ -68,3 +68,7 @@ fn check_if_kanji(codepoint: u32) -> bool {
     }
     return false;
 }
+
+pub fn get_fancy_percentage(base: usize, percent: usize) -> String {
+    return format!("{:.2}%", percent as f64 / base as f64 * 100.0);
+}

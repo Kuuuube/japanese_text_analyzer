@@ -55,14 +55,14 @@ fn main() {
         word_count_single_occurrence: word_count_single_occurrence.len(),
     };
 
-    println!("{}{}\n{}{}\n{}{}\n{}{}\n{}{}\n{}{}\n{}{}\n{}{}",
+    println!("{}{}\n{}{}\n{}{}\n{}{} ({} of unique kanji)\n{}{}\n{}{} ({} of all words)\n{}{} ({} of unique words)\n{}{}",
         "Number of Japanese characters: ", stats.char_count,
         "Number of Kanji characters: ", stats.kanji_count,
         "Number of unique kanji: ", stats.unique_kanji_count,
-        "Number of kanji appearing only once: ", stats.kanji_count_single_occurrence,
+        "Number of unique kanji appearing only once: ", stats.kanji_count_single_occurrence, analyzer::get_fancy_percentage(stats.unique_kanji_count, stats.kanji_count_single_occurrence),
         "Number of words in total: ", stats.word_count,
-        "Number of unique words: ", stats.unique_word_count,
-        "Number of words appearing only once: ", stats.word_count_single_occurrence,
+        "Number of unique words: ", stats.unique_word_count, analyzer::get_fancy_percentage(stats.word_count, stats.unique_word_count),
+        "Number of words appearing only once: ", stats.word_count_single_occurrence, analyzer::get_fancy_percentage(stats.unique_word_count, stats.word_count_single_occurrence),
         "Average length of a sentence: ", ""
     );
 }
