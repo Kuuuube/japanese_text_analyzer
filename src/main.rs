@@ -31,8 +31,11 @@ fn main() {
     let occurrence_list_sorted = analyzer::sort_occurrence_list(&occurrence_list);
     let word_count_single_occurrence = analyzer::find_single_occurrences(&word_occurrence_list);
     let characters = morpheme_surfaces.join("");
-    let japanese_characters = analyzer::filter_non_japanese(&characters);
-    let kanji_characters = analyzer::filter_non_kanji(&characters);
+    let characters_occurrence_list = analyzer::generate_occurrence_list(&characters.chars().collect());
+    let characters_count_single_occurrence = analyzer::find_single_occurrences(&characters_occurrence_list);
+    let kanji_count_single_occurrence = analyzer::filter_non_kanji(&characters_count_single_occurrence);
+    let japanese_characters = analyzer::filter_non_japanese(&characters.chars().collect());
+    let kanji_characters = analyzer::filter_non_kanji(&characters.chars().collect());
     let mut unique_kanji_characters: Vec<char> = kanji_characters.clone();
     unique_kanji_characters.sort();
     unique_kanji_characters.dedup();
@@ -41,6 +44,7 @@ fn main() {
         char_count: japanese_characters.len(),
         kanji_count: kanji_characters.len(),
         unique_kanji_count: unique_kanji_characters.len(),
+        kanji_count_single_occurrence: kanji_count_single_occurrence.len(),
         word_count: morpheme_surfaces.len(),
         unique_word_count: occurrence_list_sorted.len(),
         word_count_single_occurrence: word_count_single_occurrence.len(),

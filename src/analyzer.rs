@@ -14,12 +14,12 @@ pub fn find_single_occurrences<T: ToOwned<Owned = T>>(occurrence_list: &HashMap<
     return occurrence_list.iter().fold(Vec::new(), |mut map: Vec<T>, x: (&T, &i32)| {if *x.1 == 1 {map.push(x.0.to_owned())}; map});
 }
 
-pub fn filter_non_japanese(string: &String) -> Vec<char> {
-    return string.chars().filter(|x| check_if_japanese(*x as u32)).collect();
+pub fn filter_non_japanese(chars: &Vec<char>) -> Vec<char> {
+    return chars.to_owned().into_iter().filter(|x| check_if_japanese(*x as u32)).collect();
 }
 
-pub fn filter_non_kanji(string: &String) -> Vec<char> {
-    return string.chars().filter(|x| check_if_kanji(*x as u32)).collect();
+pub fn filter_non_kanji(chars: &Vec<char>) -> Vec<char> {
+    return chars.to_owned().into_iter().filter(|x| check_if_kanji(*x as u32)).collect();
 }
 
 fn check_if_japanese(codepoint: u32) -> bool {
