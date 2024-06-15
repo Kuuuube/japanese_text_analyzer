@@ -29,7 +29,7 @@ fn main() {
 
     let occurrence_list = analyzer::generate_occurrence_list(&morpheme_surfaces);
     let occurrence_list_sorted = analyzer::sort_occurrence_list(&occurrence_list);
-    let word_count_single_occurrence = analyzer::find_single_occurrences::<String>(&occurrence_list);
+    let word_count_single_occurrence = analyzer::find_single_occurrences(&word_occurrence_list);
     let characters = morpheme_surfaces.join("");
     let japanese_characters = analyzer::filter_non_japanese(&characters);
     let kanji_characters = analyzer::filter_non_kanji(&characters);
