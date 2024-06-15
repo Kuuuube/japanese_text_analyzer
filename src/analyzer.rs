@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-pub fn generate_occurrence_list(morpheme_surfaces: &Vec<String>) -> HashMap<String, i32> {
-    return morpheme_surfaces.into_iter().fold(HashMap::new(), |mut map, c| {*map.entry(c.to_string()).or_insert(0) += 1; map});
+pub fn generate_occurrence_list<T: ToOwned<Owned = T> + Eq + std::hash::Hash>(morpheme_surfaces: &Vec<T>) -> HashMap<T, i32> {
+    return morpheme_surfaces.into_iter().fold(HashMap::new(), |mut map, c| {*map.entry(c.to_owned()).or_insert(0) += 1; map});
 }
 
 pub fn sort_occurrence_list(occurrence_list: &HashMap<String, i32>) -> Vec<(String, i32)> {
