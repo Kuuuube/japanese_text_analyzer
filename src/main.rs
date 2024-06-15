@@ -61,7 +61,9 @@ fn main() {
         word_count_single_occurrence: word_count_single_occurrence.len(),
     };
 
-    let formatted_stats = format!("{}{}\n{}{}\n{}{}\n{}{} ({} of unique kanji)\n{}{}\n{}{} ({} of all words)\n{}{} ({} of unique words)",
+    let formatted_stats = format!("{}\n{}\n{}{}\n{}{}\n{}{}\n{}{} ({} of unique kanji)\n{}{}\n{}{} ({} of all words)\n{}{} ({} of unique words)",
+        start_directory_path,
+        "----------------------------------------------------------------------------",
         "Number of Japanese characters: ", stats.char_count,
         "Number of Kanji characters: ", stats.kanji_count,
         "Number of unique kanji: ", stats.unique_kanji_count,
@@ -72,6 +74,19 @@ fn main() {
     );
 
     println!("{}", formatted_stats);
+
+    let mut stats_file = std::fs::File::create(&"analysis.txt").expect("Failed to create stats file");
+    std::io::Write::write_all(&mut stats_file, formatted_stats.as_bytes()) .expect("Failed to write stats file");
+
+    let word_occurrence_list_formatted = word_occurrence_list_sorted
+        .into_iter()
+        .fold(Vec::new(), |mut vec, x| {
+            vec.push(x.0 + "\t" + &x.1.to_string());
+            vec
+        })
+        .join("\n");
+    let mut word_list_file = std::fs::File::create(&"word_list.csv").expect("Failed to create word list file");
+    std::io::Write::write_all(&mut word_list_file, word_occurrence_list_formatted.as_bytes()).expect("Failed to write word list file");
 }
 
 #[derive(Debug, Default)]
