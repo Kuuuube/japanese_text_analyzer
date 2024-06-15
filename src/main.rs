@@ -27,6 +27,7 @@ fn main() {
         }
     }
 
+    println!("Analyzing results");
     let characters = morpheme_surfaces.join("");
 
     let word_occurrence_list = analyzer::generate_occurrence_list(&morpheme_surfaces);
