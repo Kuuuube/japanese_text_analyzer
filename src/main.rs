@@ -31,11 +31,15 @@ fn main() {
     let occurrence_list_sorted = analyzer::sort_occurrence_list(&occurrence_list);
     let single_occurrences = analyzer::find_single_occurrences(&occurrence_list);
     let characters = morpheme_surfaces.join("");
+    let kanji_characters = analyzer::filter_non_kanji(&characters);
+    let mut unique_kanji_characters: Vec<char> = kanji_characters.clone();
+    unique_kanji_characters.sort();
+    unique_kanji_characters.dedup();
 
     let stats: AnalysisStats = AnalysisStats {
         char_count: characters.len(),
-        kanji_count: 0,
-        unique_kanji_count: 0,
+        kanji_count: kanji_characters.len(),
+        unique_kanji_count: unique_kanji_characters.len(),
         word_count: morpheme_surfaces.len(),
         unique_word_count: occurrence_list_sorted.len(),
         unique_word_count_single_occurrence: single_occurrences.len(),
