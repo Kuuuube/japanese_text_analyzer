@@ -35,8 +35,9 @@ fn main() {
 
     println!("Analyzing results");
     let characters = morpheme_surfaces.join("");
+    let filtered_morphemes = analyzer::filter_blacklisted(&morpheme_surfaces);
 
-    let word_occurrence_list = analyzer::generate_occurrence_list(&morpheme_surfaces);
+    let word_occurrence_list = analyzer::generate_occurrence_list(&filtered_morphemes);
     let characters_occurrence_list = analyzer::generate_occurrence_list(&characters.chars().collect());
 
     let word_occurrence_list_sorted = analyzer::sort_occurrence_list(&word_occurrence_list);
@@ -56,7 +57,7 @@ fn main() {
         kanji_count: kanji_characters.len(),
         unique_kanji_count: unique_kanji_characters.len(),
         kanji_count_single_occurrence: kanji_count_single_occurrence.len(),
-        word_count: morpheme_surfaces.len(),
+        word_count: filtered_morphemes.len(),
         unique_word_count: word_occurrence_list_sorted.len(),
         word_count_single_occurrence: word_count_single_occurrence.len(),
     };

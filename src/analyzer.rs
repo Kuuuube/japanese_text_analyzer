@@ -46,6 +46,10 @@ pub fn filter_non_kanji(chars: &Vec<char>) -> Vec<char> {
         .collect();
 }
 
+pub fn filter_blacklisted(words: &Vec<String>) -> Vec<String> {
+    return words.into_iter().filter(|x| filter_non_japanese(&x.chars().collect()).len() > 0).map(|v| v.to_string()).collect();
+}
+
 fn check_if_japanese(codepoint: u32) -> bool {
     //Kanji
     if check_if_kanji(codepoint) ||
