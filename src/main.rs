@@ -50,8 +50,9 @@ fn main() {
         word_count_single_occurrence: word_count_single_occurrence.len(),
     };
 
-    println!("{}{}\n{}{}\n{}{}\n{}{}\n{}{}\n{}{}\n{}{}",
+    println!("{}{}\n{}{}\n{}{}\n{}{}\n{}{}\n{}{}\n{}{}\n{}{}",
         "Number of Japanese characters: ", stats.char_count,
+        "Number of Kanji characters: ", stats.kanji_count,
         "Number of unique kanji: ", stats.unique_kanji_count,
         "Number of kanji appearing only once: ", stats.kanji_count_single_occurrence,
         "Number of words in total: ", stats.word_count,
