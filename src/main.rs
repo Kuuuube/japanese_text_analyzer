@@ -27,8 +27,15 @@ fn main() {
         }
     }
 
-    analyzer::analyze_morphemes(&morpheme_surfaces);
+    let mut stats: AnalysisStats = Default::default();
 
-    println!("{}", morpheme_surfaces.join("|"));
+    stats.occurrence_list = analyzer::generate_occurrence_list(&morpheme_surfaces);
+
+    println!("{:?}", stats.occurrence_list);
     println!("Morphemes found: {}", morpheme_surfaces.len());
+}
+
+#[derive(Default)]
+struct AnalysisStats {
+    occurrence_list: Vec<(String, i32)>
 }
