@@ -27,15 +27,28 @@ fn main() {
         }
     }
 
-    let mut stats: AnalysisStats = Default::default();
+    let occurrence_list = analyzer::generate_occurrence_list(&morpheme_surfaces);
+    let occurrence_list_sorted = analyzer::sort_occurrence_list(&occurrence_list);
+    let single_occurrences = analyzer::find_single_occurrences(&occurrence_list);
 
-    stats.occurrence_list = analyzer::generate_occurrence_list(&morpheme_surfaces);
+    let stats: AnalysisStats = AnalysisStats {
+        char_count: 0,
+        kanji_count: 0,
+        unique_kanji_count: 0,
+        word_count: morpheme_surfaces.len(),
+        unique_word_count: occurrence_list_sorted.len(),
+        unique_word_count_single_occurrence: single_occurrences.len(),
+    };
 
-    println!("{:?}", stats.occurrence_list);
-    println!("Morphemes found: {}", morpheme_surfaces.len());
+    println!("{:?}", stats);
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 struct AnalysisStats {
-    occurrence_list: Vec<(String, i32)>
+    char_count: usize,
+    kanji_count: usize,
+    unique_kanji_count: usize,
+    word_count: usize,
+    unique_word_count: usize,
+    unique_word_count_single_occurrence: usize,
 }
