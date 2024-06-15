@@ -27,8 +27,8 @@ fn main() {
         }
     }
 
-    let occurrence_list = analyzer::generate_occurrence_list(&morpheme_surfaces);
-    let occurrence_list_sorted = analyzer::sort_occurrence_list(&occurrence_list);
+    let word_occurrence_list = analyzer::generate_occurrence_list(&morpheme_surfaces);
+    let word_occurrence_list_sorted = analyzer::sort_occurrence_list(&word_occurrence_list);
     let word_count_single_occurrence = analyzer::find_single_occurrences(&word_occurrence_list);
     let characters = morpheme_surfaces.join("");
     let characters_occurrence_list = analyzer::generate_occurrence_list(&characters.chars().collect());
@@ -46,7 +46,7 @@ fn main() {
         unique_kanji_count: unique_kanji_characters.len(),
         kanji_count_single_occurrence: kanji_count_single_occurrence.len(),
         word_count: morpheme_surfaces.len(),
-        unique_word_count: occurrence_list_sorted.len(),
+        unique_word_count: word_occurrence_list_sorted.len(),
         word_count_single_occurrence: word_count_single_occurrence.len(),
     };
 
