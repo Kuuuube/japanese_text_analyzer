@@ -1,6 +1,7 @@
 #[cfg(test)]
 #[test]
 pub fn parse_minimal_synthetic_json() {
+    //load file and extract text
     let json_files = crate::json_handler::get_json_files("./src/tests/data/minimal_synthetic.json");
     println!("{:?}", json_files);
 
@@ -11,5 +12,25 @@ pub fn parse_minimal_synthetic_json() {
         "さっぽろテレビ塔".to_owned(),
         "カンヌ国際映画祭".to_owned(),
     ];
-    assert!(lines == expected_lines)
+    assert!(lines == expected_lines);
+
+    //tokenize text
+    let dict: sudachi::dic::dictionary::JapaneseDictionary = crate::dict_handler::make_sudachi_dict().expect("Failed to load tokenizer dictionary");
+    let tokenized_data = crate::run_tokenization(lines, &dict);
+    let expected_tokenized_data = vec![
+        "医薬品".to_owned(),
+        "安全".to_owned(),
+        "管理".to_owned(),
+        "責任者".to_owned(),
+        "消費者".to_owned(),
+        "安全".to_owned(),
+        "調査".to_owned(),
+        "委員会".to_owned(),
+        "さっぽろ".to_owned(),
+        "テレビ塔".to_owned(),
+        "カンヌ".to_owned(),
+        "国際".to_owned(),
+        "映画祭".to_owned(),
+    ];
+    assert!(tokenized_data == expected_tokenized_data);
 }
