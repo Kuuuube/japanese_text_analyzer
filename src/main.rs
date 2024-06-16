@@ -26,15 +26,15 @@ fn main() {
 
     println!("Running tokenizer");
     let start_time = std::time::Instant::now();
-    let morpheme_surfaces = run_tokenization(lines, &dict);
+    let morpheme_surfaces = run_tokenization(&lines, &dict);
     println!("Tokenizer finished ({}ms)", start_time.elapsed().as_millis());
 
     println!("Analyzing results");
     let start_time = std::time::Instant::now();
-    let stats = get_stats(morpheme_surfaces);
+    let stats = get_stats(lines, morpheme_surfaces);
     println!("Analysis completed ({}ms)", start_time.elapsed().as_millis());
 
-    let formatted_stats = format!("{}\n{}\n{}{}\n{}{}\n{}{}\n{}{} ({} of unique kanji)\n{}{}\n{}{} ({} of all words)\n{}{} ({} of unique words)",
+    let formatted_stats = format!("{}\n{}\n{}{}\n{}{}\n{}{}\n{}{} ({} of unique kanji)\n{}{}\n{}{} ({} of all words)\n{}{} ({} of unique words)\n{}{}",
         start_directory_path,
         "----------------------------------------------------------------------------",
         "Number of Japanese characters: ", stats.char_count,
@@ -43,7 +43,8 @@ fn main() {
         "Number of unique kanji appearing only once: ", stats.kanji_count_single_occurrence, analyzer::get_fancy_percentage(stats.unique_kanji_count, stats.kanji_count_single_occurrence),
         "Number of words in total: ", stats.word_count,
         "Number of unique words: ", stats.unique_word_count, analyzer::get_fancy_percentage(stats.word_count, stats.unique_word_count),
-        "Number of words appearing only once: ", stats.word_count_single_occurrence, analyzer::get_fancy_percentage(stats.unique_word_count, stats.word_count_single_occurrence)
+        "Number of words appearing only once: ", stats.word_count_single_occurrence, analyzer::get_fancy_percentage(stats.unique_word_count, stats.word_count_single_occurrence),
+        "Average textbox length in characters: ", stats.avg_box_length
     );
 
     println!("{}", formatted_stats);
@@ -62,13 +63,13 @@ fn main() {
     std::io::Write::write_all(&mut word_list_file, word_occurrence_list_formatted.as_bytes()).expect("Failed to write word list file");
 }
 
-fn run_tokenization(lines: Vec<String>, dict: &JapaneseDictionary) -> Vec<String> {
+fn run_tokenization(lines: &Vec<String>, dict: &JapaneseDictionary) -> Vec<String> {
     let tokenizer = sudachi::analysis::stateless_tokenizer::StatelessTokenizer::new(dict);
     let mut morpheme_surfaces: Vec<String> = Default::default();
     for line in lines {
         let morphemes = match sudachi::analysis::Tokenize::tokenize(
             &tokenizer,
-            &line,
+            line,
             dict_handler::get_mode(),
             false,
         ) {
@@ -85,7 +86,7 @@ fn run_tokenization(lines: Vec<String>, dict: &JapaneseDictionary) -> Vec<String
     return morpheme_surfaces;
 }
 
-fn get_stats(morpheme_surfaces: Vec<String>) -> AnalysisStats {
+fn get_stats(lines: Vec<String>, morpheme_surfaces: Vec<String>) -> AnalysisStats {
     let characters = morpheme_surfaces.join("");
     let filtered_morphemes = analyzer::filter_blacklisted(&morpheme_surfaces);
 
@@ -104,6 +105,8 @@ fn get_stats(morpheme_surfaces: Vec<String>) -> AnalysisStats {
     unique_kanji_characters.sort();
     unique_kanji_characters.dedup();
 
+    let avg_box_length = analyzer::get_avg_len(lines);
+
     return AnalysisStats {
         char_count: japanese_characters.len(),
         kanji_count: kanji_characters.len(),
@@ -112,6 +115,7 @@ fn get_stats(morpheme_surfaces: Vec<String>) -> AnalysisStats {
         word_count: filtered_morphemes.len(),
         unique_word_count: word_occurrence_list_sorted.len(),
         word_count_single_occurrence: word_count_single_occurrence.len(),
+        avg_box_length: avg_box_length,
 
         word_occurrence_list_sorted: word_occurrence_list_sorted,
     };
@@ -126,6 +130,7 @@ struct AnalysisStats {
     word_count: usize,
     unique_word_count: usize,
     word_count_single_occurrence: usize,
+    avg_box_length: usize,
 
     word_occurrence_list_sorted: Vec<(String, i32)>,
 }

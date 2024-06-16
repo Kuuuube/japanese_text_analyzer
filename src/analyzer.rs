@@ -30,6 +30,15 @@ pub fn find_single_occurrences<T: ToOwned<Owned = T>>(occurrence_list: &HashMap<
         });
 }
 
+pub fn get_avg_len(lines: Vec<String>) -> usize {
+    let parent_len = lines.len();
+    let mut items_len = 0;
+    for line in &lines {
+        items_len += line.len()
+    }
+    return items_len / parent_len;
+}
+
 pub fn filter_non_japanese(chars: &Vec<char>) -> Vec<char> {
     return chars
         .to_owned()

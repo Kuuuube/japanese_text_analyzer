@@ -16,7 +16,7 @@ pub fn parse_minimal_synthetic_json() {
 
     //tokenize text
     let dict: sudachi::dic::dictionary::JapaneseDictionary = crate::dict_handler::make_sudachi_dict().expect("Failed to load tokenizer dictionary");
-    let tokenized_data = crate::run_tokenization(lines, &dict);
+    let tokenized_data = crate::run_tokenization(&lines, &dict);
     let expected_tokenized_data = vec![
         "医薬品".to_owned(),
         "安全".to_owned(),
