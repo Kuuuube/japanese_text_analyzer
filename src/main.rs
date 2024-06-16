@@ -40,7 +40,7 @@ fn main() {
     println!("{}", formatted_stats);
 
     let mut stats_file = std::fs::File::create(&"analysis.txt").expect("Failed to create stats file");
-    std::io::Write::write_all(&mut stats_file, formatted_stats.as_bytes()) .expect("Failed to write stats file");
+    std::io::Write::write_all(&mut stats_file, formatted_stats.as_bytes()).expect("Failed to write stats file");
 
     let word_occurrence_list_formatted = stats.word_occurrence_list_sorted
         .into_iter()
@@ -104,7 +104,7 @@ fn get_stats(morpheme_surfaces: Vec<String>) -> AnalysisStats {
         unique_word_count: word_occurrence_list_sorted.len(),
         word_count_single_occurrence: word_count_single_occurrence.len(),
 
-        word_occurrence_list_sorted: word_occurrence_list_sorted
+        word_occurrence_list_sorted: word_occurrence_list_sorted,
     };
 }
 
@@ -118,5 +118,5 @@ struct AnalysisStats {
     unique_word_count: usize,
     word_count_single_occurrence: usize,
 
-    word_occurrence_list_sorted: Vec<(String, i32)>
+    word_occurrence_list_sorted: Vec<(String, i32)>,
 }
