@@ -10,21 +10,29 @@ fn main() {
     let start_directory_path = args.get(1).expect("Missing directory or file path\nUsage: japanese_text_analyzer PATH");
 
     println!("Finding json files in {}", start_directory_path);
+    let start_time = std::time::Instant::now();
     let json_files = json_handler::get_json_files(start_directory_path);
-    println!("Found {} json files", json_files.len());
+    println!("Found {} json files ({}ms)", json_files.len(), start_time.elapsed().as_millis());
 
     println!("Extracting text from json files");
+    let start_time = std::time::Instant::now();
     let lines = json_handler::get_json_file_data(json_files);
-    println!("Extracted {} lines of text", lines.len());
+    println!("Extracted {} lines of text ({}ms)", lines.len(), start_time.elapsed().as_millis());
 
     println!("Loading tokenizer dictionary");
+    let start_time = std::time::Instant::now();
     let dict = dict_handler::make_sudachi_dict().expect("Failed to load tokenizer dictionary");
+    println!("Dictionary loaded ({}ms)", start_time.elapsed().as_millis());
 
     println!("Running tokenizer");
+    let start_time = std::time::Instant::now();
     let morpheme_surfaces = run_tokenization(lines, &dict);
+    println!("Tokenizer finished ({}ms)", start_time.elapsed().as_millis());
 
     println!("Analyzing results");
+    let start_time = std::time::Instant::now();
     let stats = get_stats(morpheme_surfaces);
+    println!("Analysis completed ({}ms)", start_time.elapsed().as_millis());
 
     let formatted_stats = format!("{}\n{}\n{}{}\n{}{}\n{}{}\n{}{} ({} of unique kanji)\n{}{}\n{}{} ({} of all words)\n{}{} ({} of unique words)",
         start_directory_path,
