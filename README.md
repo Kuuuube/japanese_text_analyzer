@@ -23,6 +23,7 @@ Number of unique kanji appearing only once: 285 (26.34% of unique kanji)
 Number of words in total: 29219
 Number of unique words: 3519 (12.04% of all words)
 Number of words appearing only once: 2035 (57.83% of unique words)
+Average textbox length in characters: 11 (Shortest: 1) (Longest: 254)
 ```
 
 `word_list.csv`
