@@ -13,6 +13,7 @@ fn main() {
     let json_files = json_handler::get_json_files(start_directory_path);
     println!("Found {} json files", json_files.len());
 
+    println!("Extracting text from json files");
     let lines = json_handler::get_json_file_data(json_files);
     println!("Extracted {} lines of text", lines.len());
 
