@@ -65,7 +65,7 @@ fn run_tokenization(lines: Vec<String>, dict: &JapaneseDictionary) -> Vec<String
         ) {
             Ok(ok) => ok,
             Err(err) => {
-                println!("Line failed to tokenize {}\nError: {}", line, err);
+                println!("Line failed to tokenize `{}`\nError: `{}`", line, err);
                 continue;
             }
         };
