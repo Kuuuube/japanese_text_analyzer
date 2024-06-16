@@ -30,13 +30,26 @@ pub fn find_single_occurrences<T: ToOwned<Owned = T>>(occurrence_list: &HashMap<
         });
 }
 
-pub fn get_avg_len(lines: Vec<String>) -> usize {
+pub fn get_avg_len(lines: Vec<String>) -> Option<BoxLength> {
     let parent_len = lines.len();
-    let mut items_len = 0;
-    for line in &lines {
-        items_len += line.len()
+    let mut lens = Vec::default();
+    let filtered_lines = filter_blacklisted(&lines);
+    for line in &filtered_lines {
+        lens.push(line.chars().count())
     }
-    return items_len / parent_len;
+    lens.sort();
+    return Some(BoxLength {
+        average: lens.iter().sum::<usize>() / parent_len,
+        shortest: *lens.first()?,
+        longest: *lens.last()?,
+    });
+}
+
+#[derive(Default)]
+pub struct BoxLength {
+    pub average: usize,
+    pub shortest: usize,
+    pub longest: usize,
 }
 
 pub fn filter_non_japanese(chars: &Vec<char>) -> Vec<char> {

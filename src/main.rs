@@ -34,7 +34,7 @@ fn main() {
     let stats = get_stats(lines, morpheme_surfaces);
     println!("Analysis completed ({}ms)", start_time.elapsed().as_millis());
 
-    let formatted_stats = format!("{}\n{}\n{}{}\n{}{}\n{}{}\n{}{} ({} of unique kanji)\n{}{}\n{}{} ({} of all words)\n{}{} ({} of unique words)\n{}{}",
+    let formatted_stats = format!("{}\n{}\n{}{}\n{}{}\n{}{}\n{}{} ({} of unique kanji)\n{}{}\n{}{} ({} of all words)\n{}{} ({} of unique words)\n{}{} (Shortest: {}) (Longest: {})",
         start_directory_path,
         "----------------------------------------------------------------------------",
         "Number of Japanese characters: ", stats.char_count,
@@ -44,7 +44,7 @@ fn main() {
         "Number of words in total: ", stats.word_count,
         "Number of unique words: ", stats.unique_word_count, analyzer::get_fancy_percentage(stats.word_count, stats.unique_word_count),
         "Number of words appearing only once: ", stats.word_count_single_occurrence, analyzer::get_fancy_percentage(stats.unique_word_count, stats.word_count_single_occurrence),
-        "Average textbox length in characters: ", stats.avg_box_length
+        "Average textbox length in characters: ", stats.avg_box_length, stats.shortest_box_length, stats.longest_box_length
     );
 
     println!("{}", formatted_stats);
@@ -105,7 +105,7 @@ fn get_stats(lines: Vec<String>, morpheme_surfaces: Vec<String>) -> AnalysisStat
     unique_kanji_characters.sort();
     unique_kanji_characters.dedup();
 
-    let avg_box_length = analyzer::get_avg_len(lines);
+    let box_length = analyzer::get_avg_len(lines).unwrap_or_default();
 
     return AnalysisStats {
         char_count: japanese_characters.len(),
@@ -115,7 +115,9 @@ fn get_stats(lines: Vec<String>, morpheme_surfaces: Vec<String>) -> AnalysisStat
         word_count: filtered_morphemes.len(),
         unique_word_count: word_occurrence_list_sorted.len(),
         word_count_single_occurrence: word_count_single_occurrence.len(),
-        avg_box_length: avg_box_length,
+        avg_box_length: box_length.average,
+        shortest_box_length: box_length.shortest,
+        longest_box_length: box_length.longest,
 
         word_occurrence_list_sorted: word_occurrence_list_sorted,
     };
@@ -131,6 +133,8 @@ struct AnalysisStats {
     unique_word_count: usize,
     word_count_single_occurrence: usize,
     avg_box_length: usize,
+    shortest_box_length: usize,
+    longest_box_length: usize,
 
     word_occurrence_list_sorted: Vec<(String, i32)>,
 }
