@@ -20,7 +20,14 @@ pub fn get_json_files(directory: &str) -> Vec<std::path::PathBuf> {
 pub fn get_json_file_data(filepaths: Vec<PathBuf>) -> Vec<String> {
     let mut lines: Vec<String> = Default::default();
     for filepath in filepaths {
-        let json_data = std::fs::read_to_string(filepath).unwrap();
+        let json_data = match std::fs::read_to_string(&filepath) {
+            Ok(ok) => ok,
+            Err(err) => {
+                let filepath_str = filepath.to_str().unwrap_or("failed to display filepath");
+                println!("Failed to read json file `{}`\nError: `{}`", filepath_str, err);
+                continue;
+            }
+        };
         match serde_json::from_str::<MokuroJson>(&json_data) {
             Ok(ok) => {
                 for block in ok.blocks {
