@@ -24,7 +24,7 @@ fn main() {
         let morphemes = sudachi::analysis::Tokenize::tokenize(
             &tokenizer,
             &line,
-            sudachi::analysis::Mode::C,
+            dict_handler::get_mode(),
             false,
         )
         .unwrap();
