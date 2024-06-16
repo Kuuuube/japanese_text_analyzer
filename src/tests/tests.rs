@@ -1,7 +1,7 @@
 #[cfg(test)]
 #[test]
 pub fn parse_minimal_synthetic_json() {
-    let json_files = crate::json_handler::get_json_files("./src/tests/data/minimal_synthetic.json").unwrap();
+    let json_files = crate::json_handler::get_json_files("./src/tests/data/minimal_synthetic.json");
     println!("{:?}", json_files);
 
     let lines = crate::json_handler::get_json_file_data(json_files);

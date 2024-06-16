@@ -1,7 +1,7 @@
 use serde::Deserialize;
 use std::path::PathBuf;
 
-pub fn get_json_files(directory: &str) -> Result<Vec<std::path::PathBuf>, Box<dyn std::error::Error>> {
+pub fn get_json_files(directory: &str) -> Vec<std::path::PathBuf> {
     let mut json_files: Vec<std::path::PathBuf> = Default::default();
     for entry in walkdir::WalkDir::new(directory)
         .follow_links(true)
@@ -14,7 +14,7 @@ pub fn get_json_files(directory: &str) -> Result<Vec<std::path::PathBuf>, Box<dy
             json_files.push(entry.into_path());
         }
     }
-    return Ok(json_files);
+    return json_files;
 }
 
 pub fn get_json_file_data(filepaths: Vec<PathBuf>) -> Vec<String> {

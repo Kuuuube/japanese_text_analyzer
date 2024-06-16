@@ -10,7 +10,7 @@ fn main() {
     let start_directory_path = args.get(1).unwrap();
     println!("Finding json files in {}", start_directory_path);
 
-    let json_files = json_handler::get_json_files(start_directory_path).unwrap();
+    let json_files = json_handler::get_json_files(start_directory_path);
     println!("Found {} json files", json_files.len());
 
     let lines = json_handler::get_json_file_data(json_files);
