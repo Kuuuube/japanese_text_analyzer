@@ -3,6 +3,7 @@ use sudachi::dic::dictionary::JapaneseDictionary;
 mod analyzer;
 mod dict_handler;
 mod json_handler;
+mod tests;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
