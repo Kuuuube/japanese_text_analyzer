@@ -57,13 +57,18 @@ fn run_tokenization(lines: Vec<String>, dict: &JapaneseDictionary) -> Vec<String
     let tokenizer = sudachi::analysis::stateless_tokenizer::StatelessTokenizer::new(dict);
     let mut morpheme_surfaces: Vec<String> = Default::default();
     for line in lines {
-        let morphemes = sudachi::analysis::Tokenize::tokenize(
+        let morphemes = match sudachi::analysis::Tokenize::tokenize(
             &tokenizer,
             &line,
             dict_handler::get_mode(),
             false,
-        )
-        .unwrap();
+        ) {
+            Ok(ok) => ok,
+            Err(err) => {
+                println!("Line failed to tokenize {}\nError: {}", line, err);
+                continue;
+            }
+        };
         for morpheme in morphemes.iter() {
             morpheme_surfaces.push(morpheme.surface().to_string());
         }
