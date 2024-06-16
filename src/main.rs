@@ -8,8 +8,8 @@ mod tests;
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let start_directory_path = args.get(1).expect("Missing directory or file path\nUsage: japanese_text_analyzer PATH");
-    println!("Finding json files in {}", start_directory_path);
 
+    println!("Finding json files in {}", start_directory_path);
     let json_files = json_handler::get_json_files(start_directory_path);
     println!("Found {} json files", json_files.len());
 
