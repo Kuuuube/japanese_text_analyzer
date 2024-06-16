@@ -17,7 +17,7 @@ fn main() {
     println!("Extracted {} lines of text", lines.len());
 
     println!("Loading tokenizer dictionary");
-    let dict = dict_handler::make_sudachi_dict().unwrap();
+    let dict = dict_handler::make_sudachi_dict().expect("Failed to load tokenizer dictionary");
 
     println!("Running tokenizer");
     let morpheme_surfaces = run_tokenization(lines, &dict);
