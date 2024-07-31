@@ -1,5 +1,21 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
+use std::path::PathBuf;
+
+pub fn count_directories(filepaths: &Vec<PathBuf>) -> usize {
+    return filepaths
+        .iter()
+        .fold(HashSet::new(), |mut map: HashSet<String>, x: &PathBuf| {
+            match x.parent() {
+                Some(some) => {
+                    map.insert(some.to_string_lossy().to_string());
+                }
+                None => {}
+            }
+            map
+        })
+        .len();
+}
 
 pub fn generate_occurrence_list<T: ToOwned<Owned = T> + Eq + Hash>(
     morpheme_surfaces: &Vec<T>,
