@@ -60,6 +60,7 @@ pub fn get_avg_len(lines: Vec<String>) -> Option<BoxLength> {
         average: lens.iter().sum::<usize>() / parent_len,
         shortest: *lens.first()?,
         longest: *lens.last()?,
+        length: lines.len(),
     });
 }
 
@@ -68,6 +69,7 @@ pub struct BoxLength {
     pub average: usize,
     pub shortest: usize,
     pub longest: usize,
+    pub length: usize,
 }
 
 pub fn filter_non_japanese(chars: &Vec<char>) -> Vec<char> {

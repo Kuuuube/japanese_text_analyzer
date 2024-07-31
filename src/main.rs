@@ -52,7 +52,7 @@ fn main() {
         start_time.elapsed().as_millis()
     );
 
-    let formatted_stats = format!("{}\n{}\n{}{}\n{}{}\n{}{}\n{}{} ({} of unique kanji)\n{}{}\n{}{} ({} of all words)\n{}{} ({} of unique words)\n{}{} ({} total volumes)\n{}{} ({} total pages)\n{}{} (Shortest: {}) (Longest: {})",
+    let formatted_stats = format!("{}\n{}\n{}{}\n{}{}\n{}{}\n{}{} ({} of unique kanji)\n{}{}\n{}{} ({} of all words)\n{}{} ({} of unique words)\n{}{} ({} total volumes)\n{}{} ({} total pages)\n{}{} (shortest: {}) (longest: {}) ({} total textboxes)",
         start_directory_path,
         "----------------------------------------------------------------------------",
         "Number of Japanese characters: ", stats.char_count,
@@ -64,7 +64,7 @@ fn main() {
         "Number of words appearing only once: ", stats.word_count_single_occurrence, analyzer::get_fancy_percentage(stats.unique_word_count, stats.word_count_single_occurrence),
         "Average volume length in characters: ", stats.avg_volume_length, stats.volume_count,
         "Average page length in characters: ", stats.avg_page_length, stats.page_count,
-        "Average textbox length in characters: ", stats.avg_box_length, stats.shortest_box_length, stats.longest_box_length
+        "Average textbox length in characters: ", stats.avg_box_length, stats.shortest_box_length, stats.longest_box_length, stats.box_count
     );
 
     println!("{}", formatted_stats);
@@ -158,6 +158,7 @@ fn get_stats(
         avg_box_length: box_length.average,
         shortest_box_length: box_length.shortest,
         longest_box_length: box_length.longest,
+        box_count: box_length.length,
 
         word_occurrence_list_sorted: word_occurrence_list_sorted,
     };
@@ -179,6 +180,7 @@ struct AnalysisStats {
     avg_box_length: usize,
     shortest_box_length: usize,
     longest_box_length: usize,
+    box_count: usize,
 
     word_occurrence_list_sorted: Vec<(String, i32)>,
 }
