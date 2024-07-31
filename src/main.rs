@@ -35,7 +35,7 @@ fn main() {
     let stats = get_stats(lines, morpheme_surfaces, json_file_count);
     println!("Analysis completed ({}ms)", start_time.elapsed().as_millis());
 
-    let formatted_stats = format!("{}\n{}\n{}{}\n{}{}\n{}{}\n{}{} ({} of unique kanji)\n{}{}\n{}{} ({} of all words)\n{}{} ({} of unique words)\n{}{}\n{}{} (Shortest: {}) (Longest: {})",
+    let formatted_stats = format!("{}\n{}\n{}{}\n{}{}\n{}{}\n{}{} ({} of unique kanji)\n{}{}\n{}{} ({} of all words)\n{}{} ({} of unique words)\n{}{} ({} total pages)\n{}{} (Shortest: {}) (Longest: {})",
         start_directory_path,
         "----------------------------------------------------------------------------",
         "Number of Japanese characters: ", stats.char_count,
@@ -45,7 +45,7 @@ fn main() {
         "Number of words in total: ", stats.word_count,
         "Number of unique words: ", stats.unique_word_count, analyzer::get_fancy_percentage(stats.word_count, stats.unique_word_count),
         "Number of words appearing only once: ", stats.word_count_single_occurrence, analyzer::get_fancy_percentage(stats.unique_word_count, stats.word_count_single_occurrence),
-        "Average page length in characters: ", stats.avg_page_length,
+        "Average page length in characters: ", stats.avg_page_length, stats.page_count,
         "Average textbox length in characters: ", stats.avg_box_length, stats.shortest_box_length, stats.longest_box_length
     );
 
@@ -117,6 +117,7 @@ fn get_stats(lines: Vec<String>, morpheme_surfaces: Vec<String>, json_file_count
         word_count: filtered_morphemes.len(),
         unique_word_count: word_occurrence_list_sorted.len(),
         word_count_single_occurrence: word_count_single_occurrence.len(),
+        page_count: json_file_count,
         avg_page_length: japanese_characters.len() / json_file_count,
         avg_box_length: box_length.average,
         shortest_box_length: box_length.shortest,
@@ -135,6 +136,7 @@ struct AnalysisStats {
     word_count: usize,
     unique_word_count: usize,
     word_count_single_occurrence: usize,
+    page_count: usize,
     avg_page_length: usize,
     avg_box_length: usize,
     shortest_box_length: usize,
