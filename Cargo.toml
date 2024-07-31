@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sudachi = { git = "https://github.com/WorksApplications/sudachi.rs", commit = "d78bf49e8473a5895e542c54f9e7375e9c009e26"  }
+sudachi = { git = "https://github.com/WorksApplications/sudachi.rs", rev = "d78bf49e8473a5895e542c54f9e7375e9c009e26"  }
 serde = {version = "1.0", features = ["derive"]}
 serde_json = "1.0"
 zstd-safe = { version = "7.1.0", features = ["experimental", "std"] }
