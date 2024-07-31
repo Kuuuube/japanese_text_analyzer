@@ -20,12 +20,12 @@ Number of Japanese characters: 43811
 Number of kanji characters: 10952
 Number of unique kanji: 1082
 Number of unique kanji appearing only once: 285 (26.34% of unique kanji)
-Number of words in total: 29219
-Number of unique words: 3519 (12.04% of all words)
-Number of words appearing only once: 2035 (57.83% of unique words)
+Number of words in total: 25204
+Number of unique words: 3519 (13.96% of all words)
+Number of words appearing only once: 2018 (57.35% of unique words)
 Average volume length in characters: 14603 (3 total volumes)
 Average page length in characters: 103 (422 total pages)
-Average textbox length in characters: 11 (Shortest: 1) (Longest: 254)
+Average textbox length in characters: 11 (shortest: 1) (longest: 254) (4302 total textboxes)
 ```
 
 `word_list.csv`
