@@ -11,18 +11,19 @@ fn main() {
         .get(1)
         .expect("Missing directory or file path\nUsage: japanese_text_analyzer PATH");
 
-    println!("Finding json files in {}", start_directory_path);
+    println!("Finding manga volumes in {}", start_directory_path);
     let start_time = std::time::Instant::now();
     let json_files = json_handler::get_json_files(start_directory_path);
     let json_file_count = json_files.len();
     let json_dir_count = analyzer::count_directories(&json_files);
     println!(
-        "Found {} json files ({}ms)",
+        "Found {} pages from {} manga volumes ({}ms)",
         json_file_count,
+        json_dir_count,
         start_time.elapsed().as_millis()
     );
 
-    println!("Extracting text from json files");
+    println!("Extracting text from pages");
     let start_time = std::time::Instant::now();
     let lines = json_handler::get_json_file_data(json_files);
     println!(
