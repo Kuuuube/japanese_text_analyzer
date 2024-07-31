@@ -12,7 +12,8 @@ fn main() {
     println!("Finding json files in {}", start_directory_path);
     let start_time = std::time::Instant::now();
     let json_files = json_handler::get_json_files(start_directory_path);
-    println!("Found {} json files ({}ms)", json_files.len(), start_time.elapsed().as_millis());
+    let json_file_count = json_files.len();
+    println!("Found {} json files ({}ms)", json_file_count, start_time.elapsed().as_millis());
 
     println!("Extracting text from json files");
     let start_time = std::time::Instant::now();
@@ -31,10 +32,10 @@ fn main() {
 
     println!("Analyzing results");
     let start_time = std::time::Instant::now();
-    let stats = get_stats(lines, morpheme_surfaces);
+    let stats = get_stats(lines, morpheme_surfaces, json_file_count);
     println!("Analysis completed ({}ms)", start_time.elapsed().as_millis());
 
-    let formatted_stats = format!("{}\n{}\n{}{}\n{}{}\n{}{}\n{}{} ({} of unique kanji)\n{}{}\n{}{} ({} of all words)\n{}{} ({} of unique words)\n{}{} (Shortest: {}) (Longest: {})",
+    let formatted_stats = format!("{}\n{}\n{}{}\n{}{}\n{}{}\n{}{} ({} of unique kanji)\n{}{}\n{}{} ({} of all words)\n{}{} ({} of unique words)\n{}{}\n{}{} (Shortest: {}) (Longest: {})",
         start_directory_path,
         "----------------------------------------------------------------------------",
         "Number of Japanese characters: ", stats.char_count,
@@ -44,6 +45,7 @@ fn main() {
         "Number of words in total: ", stats.word_count,
         "Number of unique words: ", stats.unique_word_count, analyzer::get_fancy_percentage(stats.word_count, stats.unique_word_count),
         "Number of words appearing only once: ", stats.word_count_single_occurrence, analyzer::get_fancy_percentage(stats.unique_word_count, stats.word_count_single_occurrence),
+        "Average page length in characters: ", stats.avg_page_length,
         "Average textbox length in characters: ", stats.avg_box_length, stats.shortest_box_length, stats.longest_box_length
     );
 
@@ -86,7 +88,7 @@ fn run_tokenization(lines: &Vec<String>, dict: &JapaneseDictionary) -> Vec<Strin
     return morpheme_surfaces;
 }
 
-fn get_stats(lines: Vec<String>, morpheme_surfaces: Vec<String>) -> AnalysisStats {
+fn get_stats(lines: Vec<String>, morpheme_surfaces: Vec<String>, json_file_count: usize) -> AnalysisStats {
     let characters = morpheme_surfaces.join("");
     let filtered_morphemes = analyzer::filter_blacklisted(&morpheme_surfaces);
 
@@ -115,6 +117,7 @@ fn get_stats(lines: Vec<String>, morpheme_surfaces: Vec<String>) -> AnalysisStat
         word_count: filtered_morphemes.len(),
         unique_word_count: word_occurrence_list_sorted.len(),
         word_count_single_occurrence: word_count_single_occurrence.len(),
+        avg_page_length: japanese_characters.len() / json_file_count,
         avg_box_length: box_length.average,
         shortest_box_length: box_length.shortest,
         longest_box_length: box_length.longest,
@@ -132,6 +135,7 @@ struct AnalysisStats {
     word_count: usize,
     unique_word_count: usize,
     word_count_single_occurrence: usize,
+    avg_page_length: usize,
     avg_box_length: usize,
     shortest_box_length: usize,
     longest_box_length: usize,
