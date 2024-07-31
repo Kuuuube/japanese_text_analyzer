@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 use std::hash::Hash;
 
-pub fn generate_occurrence_list<T: ToOwned<Owned = T> + Eq + Hash>(morpheme_surfaces: &Vec<T>) -> HashMap<T, i32> {
+pub fn generate_occurrence_list<T: ToOwned<Owned = T> + Eq + Hash>(
+    morpheme_surfaces: &Vec<T>,
+) -> HashMap<T, i32> {
     return morpheme_surfaces
         .into_iter()
         .fold(HashMap::new(), |mut map, c| {
@@ -90,7 +92,8 @@ fn check_if_japanese(codepoint: u32) -> bool {
     //Kana Extended A (Hentaigana and reserved small kana punctuation) (Reserved punctuation excluded: U+1B12B..U+1B12F; full range: U+1B100..U+1B12F)
     codepoint >= 0x1B100 && codepoint <= 0x1B122 ||
     //Kana Supplement (Hentaigana)
-    codepoint >= 0x1B000 && codepoint <= 0x1B0FF {
+    codepoint >= 0x1B000 && codepoint <= 0x1B0FF
+    {
         return true;
     }
     return false;
@@ -116,7 +119,8 @@ fn check_if_kanji(codepoint: u32) -> bool {
     //CJK Unified Ideographs Extension H
     codepoint >= 0x31350 && codepoint <= 0x323AF ||
     //CJK Compatibility Ideographs
-    codepoint >= 0xF900 && codepoint <= 0xFAFF {
+    codepoint >= 0xF900 && codepoint <= 0xFAFF
+    {
         return true;
     }
     return false;

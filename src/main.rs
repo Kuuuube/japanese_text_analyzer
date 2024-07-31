@@ -7,18 +7,28 @@ mod tests;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
-    let start_directory_path = args.get(1).expect("Missing directory or file path\nUsage: japanese_text_analyzer PATH");
+    let start_directory_path = args
+        .get(1)
+        .expect("Missing directory or file path\nUsage: japanese_text_analyzer PATH");
 
     println!("Finding json files in {}", start_directory_path);
     let start_time = std::time::Instant::now();
     let json_files = json_handler::get_json_files(start_directory_path);
     let json_file_count = json_files.len();
-    println!("Found {} json files ({}ms)", json_file_count, start_time.elapsed().as_millis());
+    println!(
+        "Found {} json files ({}ms)",
+        json_file_count,
+        start_time.elapsed().as_millis()
+    );
 
     println!("Extracting text from json files");
     let start_time = std::time::Instant::now();
     let lines = json_handler::get_json_file_data(json_files);
-    println!("Extracted {} lines of text ({}ms)", lines.len(), start_time.elapsed().as_millis());
+    println!(
+        "Extracted {} lines of text ({}ms)",
+        lines.len(),
+        start_time.elapsed().as_millis()
+    );
 
     println!("Loading tokenizer dictionary");
     let start_time = std::time::Instant::now();
@@ -28,12 +38,18 @@ fn main() {
     println!("Running tokenizer");
     let start_time = std::time::Instant::now();
     let morpheme_surfaces = run_tokenization(&lines, &dict);
-    println!("Tokenizer finished ({}ms)", start_time.elapsed().as_millis());
+    println!(
+        "Tokenizer finished ({}ms)",
+        start_time.elapsed().as_millis()
+    );
 
     println!("Analyzing results");
     let start_time = std::time::Instant::now();
     let stats = get_stats(lines, morpheme_surfaces, json_file_count);
-    println!("Analysis completed ({}ms)", start_time.elapsed().as_millis());
+    println!(
+        "Analysis completed ({}ms)",
+        start_time.elapsed().as_millis()
+    );
 
     let formatted_stats = format!("{}\n{}\n{}{}\n{}{}\n{}{}\n{}{} ({} of unique kanji)\n{}{}\n{}{} ({} of all words)\n{}{} ({} of unique words)\n{}{} ({} total pages)\n{}{} (Shortest: {}) (Longest: {})",
         start_directory_path,
@@ -51,18 +67,26 @@ fn main() {
 
     println!("{}", formatted_stats);
 
-    let mut stats_file = std::fs::File::create(&"analysis.txt").expect("Failed to create stats file");
-    std::io::Write::write_all(&mut stats_file, formatted_stats.as_bytes()).expect("Failed to write stats file");
+    let mut stats_file =
+        std::fs::File::create(&"analysis.txt").expect("Failed to create stats file");
+    std::io::Write::write_all(&mut stats_file, formatted_stats.as_bytes())
+        .expect("Failed to write stats file");
 
-    let word_occurrence_list_formatted = stats.word_occurrence_list_sorted
+    let word_occurrence_list_formatted = stats
+        .word_occurrence_list_sorted
         .into_iter()
         .fold(Vec::new(), |mut vec, x| {
             vec.push(x.0 + "\t" + &x.1.to_string());
             vec
         })
         .join("\n");
-    let mut word_list_file = std::fs::File::create(&"word_list.csv").expect("Failed to create word list file");
-    std::io::Write::write_all(&mut word_list_file, word_occurrence_list_formatted.as_bytes()).expect("Failed to write word list file");
+    let mut word_list_file =
+        std::fs::File::create(&"word_list.csv").expect("Failed to create word list file");
+    std::io::Write::write_all(
+        &mut word_list_file,
+        word_occurrence_list_formatted.as_bytes(),
+    )
+    .expect("Failed to write word list file");
 }
 
 fn run_tokenization(lines: &Vec<String>, dict: &JapaneseDictionary) -> Vec<String> {
@@ -88,18 +112,25 @@ fn run_tokenization(lines: &Vec<String>, dict: &JapaneseDictionary) -> Vec<Strin
     return morpheme_surfaces;
 }
 
-fn get_stats(lines: Vec<String>, morpheme_surfaces: Vec<String>, json_file_count: usize) -> AnalysisStats {
+fn get_stats(
+    lines: Vec<String>,
+    morpheme_surfaces: Vec<String>,
+    json_file_count: usize,
+) -> AnalysisStats {
     let characters = morpheme_surfaces.join("");
     let filtered_morphemes = analyzer::filter_blacklisted(&morpheme_surfaces);
 
     let word_occurrence_list = analyzer::generate_occurrence_list(&filtered_morphemes);
-    let characters_occurrence_list = analyzer::generate_occurrence_list(&characters.chars().collect());
+    let characters_occurrence_list =
+        analyzer::generate_occurrence_list(&characters.chars().collect());
 
     let word_occurrence_list_sorted = analyzer::sort_occurrence_list(&word_occurrence_list);
     let word_count_single_occurrence = analyzer::find_single_occurrences(&word_occurrence_list);
 
-    let characters_count_single_occurrence = analyzer::find_single_occurrences(&characters_occurrence_list);
-    let kanji_count_single_occurrence = analyzer::filter_non_kanji(&characters_count_single_occurrence);
+    let characters_count_single_occurrence =
+        analyzer::find_single_occurrences(&characters_occurrence_list);
+    let kanji_count_single_occurrence =
+        analyzer::filter_non_kanji(&characters_count_single_occurrence);
 
     let japanese_characters = analyzer::filter_non_japanese(&characters.chars().collect());
     let kanji_characters = analyzer::filter_non_kanji(&characters.chars().collect());

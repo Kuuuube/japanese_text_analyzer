@@ -24,7 +24,10 @@ pub fn get_json_file_data(filepaths: Vec<PathBuf>) -> Vec<String> {
             Ok(ok) => ok,
             Err(err) => {
                 let filepath_str = filepath.to_str().unwrap_or("failed to display filepath");
-                println!("Failed to read json file `{}`\nError: `{}`", filepath_str, err);
+                println!(
+                    "Failed to read json file `{}`\nError: `{}`",
+                    filepath_str, err
+                );
                 continue;
             }
         };
