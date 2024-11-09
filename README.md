@@ -10,13 +10,13 @@ japanese_text_analyzer mokuro_manga_directory_path OPTIONS
 
 ### Options
 
-`--mokurojson` (Default): Searches only for `.json` files in the specified path.
+- `--mokurojson` (Default): Searches only for `.json` files in the specified path.
 
     Note: The Mokuro `_ocr` json files **must** be present.
 
-`--txt`: Searches only for `.txt` files in the specified path.
+- `--txt`: Searches only for `.txt` files in the specified path.
 
-`--any`: Searches for all files in the specified path.
+- `--any`: Searches for all files in the specified path.
 
 ## Sample Output
 
