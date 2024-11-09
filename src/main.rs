@@ -1,3 +1,4 @@
+use args_parser::AnalysisType;
 use sudachi::dic::dictionary::JapaneseDictionary;
 
 mod analyzer;
@@ -13,6 +14,7 @@ fn main() {
     let (extension, media_type, enumeration_name) = match parsed_args.analysis_type {
         AnalysisType::MokuroJson => (".json", "manga volumes", "pages"),
         AnalysisType::Txt => (".txt", "text files", "files"),
+        AnalysisType::Any => ("", "files", "files"),
     };
 
     println!("Finding {} in {}", media_type, parsed_args.start_path);
@@ -34,6 +36,7 @@ fn main() {
     let lines = match parsed_args.analysis_type {
         AnalysisType::MokuroJson => file_handler::get_json_file_data(files),
         AnalysisType::Txt => file_handler::get_txt_file_data(files),
+        AnalysisType::Any => file_handler::get_txt_file_data(files),
     };
     println!(
         "Extracted {} lines of text ({}ms)",
@@ -172,12 +175,6 @@ fn get_stats(
 
         word_occurrence_list_sorted: word_occurrence_list_sorted,
     };
-}
-
-#[derive(Debug, Default)]
-enum AnalysisType {
-    #[default] MokuroJson,
-    Txt
 }
 
 #[derive(Debug, Default)]

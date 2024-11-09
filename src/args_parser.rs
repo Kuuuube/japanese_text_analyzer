@@ -1,5 +1,3 @@
-use crate::AnalysisType;
-
 pub fn get_args(args: Vec<String>) -> JapaneseTextAnalyzerArgs {
     let mut args_clone = args.clone();
     args_clone.remove(0);
@@ -10,6 +8,7 @@ pub fn get_args(args: Vec<String>) -> JapaneseTextAnalyzerArgs {
             match arg.as_str() {
                 "--mokurojson" => {japanese_text_analyzer_args.analysis_type = AnalysisType::MokuroJson},
                 "--txt" => {japanese_text_analyzer_args.analysis_type = AnalysisType::Txt},
+                "--any" => {japanese_text_analyzer_args.analysis_type = AnalysisType::Any},
                 _ => {}
             }
         } else {
@@ -23,4 +22,11 @@ pub fn get_args(args: Vec<String>) -> JapaneseTextAnalyzerArgs {
 pub struct JapaneseTextAnalyzerArgs {
     pub start_path: String,
     pub analysis_type: AnalysisType,
+}
+
+#[derive(Debug, Default)]
+pub enum AnalysisType {
+    #[default] MokuroJson,
+    Txt,
+    Any
 }
