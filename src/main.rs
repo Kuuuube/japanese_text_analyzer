@@ -65,7 +65,16 @@ fn main() {
         start_time.elapsed().as_millis()
     );
 
-    let formatted_stats = format!("{}\n{}\n{}{}\n{}{}\n{}{}\n{}{} ({} of unique kanji)\n{}{}\n{}{} ({} of all words)\n{}{} ({} of unique words)\n{}{} ({} total volumes)\n{}{} ({} total pages)\n{}{} (shortest: {}) (longest: {}) ({} total textboxes)",
+    let format_specific_stats = match parsed_args.analysis_type {
+        AnalysisType::MokuroJson => format!("{}{} ({} total volumes)\n{}{} ({} total pages)\n{}{} (shortest: {}) (longest: {}) ({} total textboxes)",
+            "Average volume length in characters: ", stats.avg_volume_length, stats.volume_count,
+            "Average page length in characters: ", stats.avg_page_length, stats.page_count,
+            "Average textbox length in characters: ", stats.avg_box_length, stats.shortest_box_length, stats.longest_box_length, stats.box_count),
+        AnalysisType::Txt => "".to_string(),
+        AnalysisType::Any => "".to_string(),
+    };
+
+    let formatted_stats = format!("{}\n{}\n{}{}\n{}{}\n{}{}\n{}{} ({} of unique kanji)\n{}{}\n{}{} ({} of all words)\n{}{} ({} of unique words)\n{}",
         parsed_args.start_path,
         "----------------------------------------------------------------------------",
         "Number of Japanese characters: ", stats.char_count,
@@ -75,9 +84,7 @@ fn main() {
         "Number of words in total: ", stats.word_count,
         "Number of unique words: ", stats.unique_word_count, analyzer::get_fancy_percentage(stats.word_count, stats.unique_word_count),
         "Number of words appearing only once: ", stats.word_count_single_occurrence, analyzer::get_fancy_percentage(stats.unique_word_count, stats.word_count_single_occurrence),
-        "Average volume length in characters: ", stats.avg_volume_length, stats.volume_count,
-        "Average page length in characters: ", stats.avg_page_length, stats.page_count,
-        "Average textbox length in characters: ", stats.avg_box_length, stats.shortest_box_length, stats.longest_box_length, stats.box_count
+        format_specific_stats,
     );
 
     println!("{}", formatted_stats);
