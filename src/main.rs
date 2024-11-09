@@ -2,30 +2,39 @@ use sudachi::dic::dictionary::JapaneseDictionary;
 
 mod analyzer;
 mod dict_handler;
-mod json_handler;
+mod file_handler;
 mod tests;
+mod args_parser;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
-    let start_directory_path = args
-        .get(1)
-        .expect("Missing directory or file path\nUsage: japanese_text_analyzer PATH");
+    let parsed_args = args_parser::get_args(args);
 
-    println!("Finding manga volumes in {}", start_directory_path);
+    let (extension, media_type, enumeration_name) = match parsed_args.analysis_type {
+        AnalysisType::MokuroJson => (".json", "manga volumes", "pages"),
+        AnalysisType::Txt => (".txt", "text files", "files"),
+    };
+
+    println!("Finding {} in {}", media_type, parsed_args.start_path);
     let start_time = std::time::Instant::now();
-    let json_files = json_handler::get_json_files(start_directory_path);
-    let json_file_count = json_files.len();
-    let json_dir_count = analyzer::count_directories(&json_files);
+    let files = file_handler::get_files(&parsed_args.start_path, extension);
+    let file_count = files.len();
+    let dir_count = analyzer::count_directories(&files);
     println!(
-        "Found {} pages from {} manga volumes ({}ms)",
-        json_file_count,
-        json_dir_count,
+        "Found {} {} from {} {} ({}ms)",
+        file_count,
+        enumeration_name,
+        dir_count,
+        media_type,
         start_time.elapsed().as_millis()
     );
 
-    println!("Extracting text from pages");
+    println!("Extracting text from {}", enumeration_name);
     let start_time = std::time::Instant::now();
-    let lines = json_handler::get_json_file_data(json_files);
+    let lines = match parsed_args.analysis_type {
+        AnalysisType::MokuroJson => file_handler::get_json_file_data(files),
+        AnalysisType::Txt => file_handler::get_txt_file_data(files),
+    };
     println!(
         "Extracted {} lines of text ({}ms)",
         lines.len(),
@@ -47,14 +56,14 @@ fn main() {
 
     println!("Analyzing results");
     let start_time = std::time::Instant::now();
-    let stats = get_stats(lines, morpheme_surfaces, json_file_count, json_dir_count);
+    let stats = get_stats(lines, morpheme_surfaces, file_count, dir_count);
     println!(
         "Analysis completed ({}ms)",
         start_time.elapsed().as_millis()
     );
 
     let formatted_stats = format!("{}\n{}\n{}{}\n{}{}\n{}{}\n{}{} ({} of unique kanji)\n{}{}\n{}{} ({} of all words)\n{}{} ({} of unique words)\n{}{} ({} total volumes)\n{}{} ({} total pages)\n{}{} (shortest: {}) (longest: {}) ({} total textboxes)",
-        start_directory_path,
+        parsed_args.start_path,
         "----------------------------------------------------------------------------",
         "Number of Japanese characters: ", stats.char_count,
         "Number of kanji characters: ", stats.kanji_count,
@@ -163,6 +172,12 @@ fn get_stats(
 
         word_occurrence_list_sorted: word_occurrence_list_sorted,
     };
+}
+
+#[derive(Debug, Default)]
+enum AnalysisType {
+    #[default] MokuroJson,
+    Txt
 }
 
 #[derive(Debug, Default)]

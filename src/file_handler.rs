@@ -1,7 +1,7 @@
 use serde::Deserialize;
 use std::path::PathBuf;
 
-pub fn get_json_files(directory: &str) -> Vec<std::path::PathBuf> {
+pub fn get_files(directory: &str, extension: &str) -> Vec<std::path::PathBuf> {
     let mut json_files: Vec<std::path::PathBuf> = Default::default();
     for entry in walkdir::WalkDir::new(directory)
         .follow_links(true)
@@ -10,7 +10,7 @@ pub fn get_json_files(directory: &str) -> Vec<std::path::PathBuf> {
     {
         let file_name = entry.file_name().to_string_lossy();
 
-        if file_name.to_string().ends_with(".json") {
+        if file_name.to_string().ends_with(extension) {
             json_files.push(entry.into_path());
         }
     }
@@ -38,6 +38,27 @@ pub fn get_json_file_data(filepaths: Vec<PathBuf>) -> Vec<String> {
                 }
             }
             Err(_) => {}
+        }
+    }
+    return lines;
+}
+
+pub fn get_txt_file_data(filepaths: Vec<PathBuf>) -> Vec<String> {
+    let mut lines: Vec<String> = Default::default();
+    for filepath in filepaths {
+        let txt_data: Vec<String> = match std::fs::read_to_string(&filepath) {
+            Ok(ok) => ok.split("\n").map(|x| x.to_owned()).collect(),
+            Err(err) => {
+                let filepath_str = filepath.to_str().unwrap_or("failed to display filepath");
+                println!(
+                    "Failed to read txt file `{}`\nError: `{}`",
+                    filepath_str, err
+                );
+                continue;
+            }
+        };
+        for data in txt_data {
+            lines.push(data);
         }
     }
     return lines;
