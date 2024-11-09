@@ -43,7 +43,7 @@ pub fn get_json_file_data(filepaths: Vec<PathBuf>) -> Vec<String> {
     return lines;
 }
 
-pub fn get_txt_file_data(filepaths: Vec<PathBuf>) -> Vec<String> {
+pub fn get_plain_file_data(filepaths: Vec<PathBuf>) -> Vec<String> {
     let mut lines: Vec<String> = Default::default();
     for filepath in filepaths {
         let txt_data: Vec<String> = match std::fs::read_to_string(&filepath) {
@@ -51,7 +51,7 @@ pub fn get_txt_file_data(filepaths: Vec<PathBuf>) -> Vec<String> {
             Err(err) => {
                 let filepath_str = filepath.to_str().unwrap_or("failed to display filepath");
                 println!(
-                    "Failed to read txt file `{}`\nError: `{}`",
+                    "Failed to read file `{}`\nError: `{}`",
                     filepath_str, err
                 );
                 continue;

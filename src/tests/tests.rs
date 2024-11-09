@@ -42,7 +42,7 @@ pub fn parse_minimal_synthetic_txt() {
     let txt_files = crate::file_handler::get_files("./src/tests/data/minimal_synthetic.txt", ".txt");
     println!("{:?}", txt_files);
 
-    let lines = crate::file_handler::get_txt_file_data(txt_files);
+    let lines = crate::file_handler::get_plain_file_data(txt_files);
     let expected_lines = vec![
         "医薬品安全管理責任者".to_owned(),
         "消費者安全調査委員会".to_owned(),
@@ -79,7 +79,7 @@ pub fn parse_minimal_synthetic_any() {
     let any_files = crate::file_handler::get_files("./src/tests/data/minimal_synthetic.txt", "");
     println!("{:?}", any_files);
 
-    let lines = crate::file_handler::get_txt_file_data(any_files);
+    let lines = crate::file_handler::get_plain_file_data(any_files);
     let expected_lines = vec![
         "医薬品安全管理責任者".to_owned(),
         "消費者安全調査委員会".to_owned(),

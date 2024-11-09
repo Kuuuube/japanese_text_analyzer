@@ -35,8 +35,8 @@ fn main() {
     let start_time = std::time::Instant::now();
     let lines = match parsed_args.analysis_type {
         AnalysisType::MokuroJson => file_handler::get_json_file_data(files),
-        AnalysisType::Txt => file_handler::get_txt_file_data(files),
-        AnalysisType::Any => file_handler::get_txt_file_data(files),
+        AnalysisType::Txt => file_handler::get_plain_file_data(files),
+        AnalysisType::Any => file_handler::get_plain_file_data(files),
     };
     println!(
         "Extracted {} lines of text ({}ms)",
