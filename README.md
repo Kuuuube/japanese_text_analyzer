@@ -1,6 +1,6 @@
 # Japanese Text Analyzer
 
-Analysis tool for ocr files in Mokuro processed manga.
+Analysis tool for ocr files in Mokuro processed manga. Also supports miscellaneous files.
 
 ## Usage
 
