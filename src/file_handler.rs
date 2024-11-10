@@ -107,6 +107,7 @@ fn chunk_utf8_string(input_string: String, chunk_size: usize) -> Vec<String> {
             current_chunk = char.to_string();
         }
     }
+    chunks.push(current_chunk);
     return chunks;
 }
 
