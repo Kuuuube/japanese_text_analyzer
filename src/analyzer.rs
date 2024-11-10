@@ -72,6 +72,30 @@ pub struct BoxLength {
     pub length: usize,
 }
 
+pub fn filter_duplicate_ascii(input_string: String) -> Vec<String> {
+    let mut result_chars: Vec<char> = vec![];
+    let mut last_char_ascii = false;
+
+    for char in input_string.chars() {
+        match (check_if_ascii(char as u32), last_char_ascii) {
+            (true, true) => (),
+            (true, false) => {
+                result_chars.push('\n');
+                last_char_ascii = true;
+            },
+            (false, true) => {
+                result_chars.push(char);
+                last_char_ascii = false;
+            },
+            (false, false) => {
+                result_chars.push(char);
+            },
+        }
+    }
+
+    return result_chars.into_iter().collect::<String>().split("\n").map(|x| x.to_owned()).collect();
+}
+
 pub fn filter_non_japanese(chars: &Vec<char>) -> Vec<char> {
     return chars
         .to_owned()
@@ -94,6 +118,14 @@ pub fn filter_blacklisted(words: &Vec<String>) -> Vec<String> {
         .filter(|x| filter_non_japanese(&x.chars().collect()).len() > 0)
         .map(|v| v.to_string())
         .collect();
+}
+
+fn check_if_ascii(codepoint: u32) -> bool {
+    //ascii goes all the way to 0x0000 and codepoints cannot be negative
+    if codepoint <= 0x007F {
+        return true;
+    }
+    return false;
 }
 
 fn check_if_japanese(codepoint: u32) -> bool {

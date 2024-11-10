@@ -77,7 +77,7 @@ pub fn get_mokuro_file_data(filepaths: Vec<PathBuf>) -> Vec<String> {
 pub fn get_plain_file_data(filepaths: Vec<PathBuf>) -> Vec<String> {
     let mut lines: Vec<String> = Default::default();
     for filepath in filepaths {
-        let txt_data: Vec<String> = match std::fs::read_to_string(&filepath) {
+        let txt_strings: Vec<String> = match std::fs::read_to_string(&filepath) {
             Ok(ok) => ok.split("\n").map(|x| x.to_owned()).collect(),
             Err(err) => {
                 let filepath_str = filepath.to_str().unwrap_or("failed to display filepath");
@@ -85,11 +85,14 @@ pub fn get_plain_file_data(filepaths: Vec<PathBuf>) -> Vec<String> {
                 continue;
             }
         };
-        for data in txt_data {
-            if data.len() > SUDACHI_MAX_TOKENIZER_LENGTH {
-                lines.append(&mut chunk_utf8_string(data, SUDACHI_MAX_TOKENIZER_LENGTH));
-            } else {
-                lines.push(data);
+        for txt_string in txt_strings {
+            let filtered_txt_strings = crate::analyzer::filter_duplicate_ascii(txt_string);
+            for filtered_txt_string in filtered_txt_strings {
+                if filtered_txt_string.len() > SUDACHI_MAX_TOKENIZER_LENGTH {
+                    lines.append(&mut chunk_utf8_string(filtered_txt_string, SUDACHI_MAX_TOKENIZER_LENGTH));
+                } else {
+                    lines.push(filtered_txt_string);
+                }
             }
         }
     }
