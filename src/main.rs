@@ -111,6 +111,14 @@ fn main() {
         word_occurrence_list_formatted.as_bytes(),
     )
     .expect("Failed to write word list file");
+
+    let mut word_list_raw_file =
+        std::fs::File::create(&"word_list_raw.csv").expect("Failed to create word list raw file");
+    std::io::Write::write_all(
+        &mut word_list_raw_file,
+        stats.word_list_raw.join("\n").as_bytes(),
+    )
+    .expect("Failed to write word list raw file");
 }
 
 fn run_tokenization(lines: &Vec<String>, dict: &JapaneseDictionary) -> Vec<String> {
@@ -182,6 +190,7 @@ fn get_stats(
         longest_box_length: box_length.longest,
         box_count: box_length.length,
 
+        word_list_raw: filtered_morphemes,
         word_occurrence_list_sorted: word_occurrence_list_sorted,
     };
 }
@@ -204,5 +213,6 @@ struct AnalysisStats {
     longest_box_length: usize,
     box_count: usize,
 
+    word_list_raw: Vec<String>,
     word_occurrence_list_sorted: Vec<(String, i32)>,
 }
