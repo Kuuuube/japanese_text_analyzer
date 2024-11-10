@@ -1,6 +1,9 @@
 use serde::Deserialize;
 use std::path::PathBuf;
 
+//https://github.com/WorksApplications/sudachi.rs/blob/d78bf49e8473a5895e542c54f9e7375e9c009e26/sudachi/src/input_text/buffer/mod.rs#L32C27-L32C52
+const SUDACHI_MAX_TOKENIZER_LENGTH: usize = u16::MAX as usize / 4 * 3;
+
 pub fn get_files(directory: &str, extension: &str) -> Vec<std::path::PathBuf> {
     let mut json_files: Vec<std::path::PathBuf> = Default::default();
     for entry in walkdir::WalkDir::new(directory)
@@ -58,7 +61,23 @@ pub fn get_plain_file_data(filepaths: Vec<PathBuf>) -> Vec<String> {
             }
         };
         for data in txt_data {
-            lines.push(data);
+            if data.len() > SUDACHI_MAX_TOKENIZER_LENGTH {
+                let mut current_string = data.clone();
+                while current_string.len() > 0 {
+                    let split_string: String = if current_string.len() > SUDACHI_MAX_TOKENIZER_LENGTH {
+                        let current_string_clone = current_string.clone();
+                        let split_string = current_string_clone.as_bytes().split_at(SUDACHI_MAX_TOKENIZER_LENGTH);
+                        current_string = String::from_utf8_lossy(split_string.1).to_string();
+                        String::from_utf8_lossy(split_string.0).to_string()
+                    } else {
+                        current_string = "".to_string();
+                        current_string.clone()
+                    };
+                    lines.push(split_string);
+                }
+            } else {
+                lines.push(data);
+            }
         }
     }
     return lines;
