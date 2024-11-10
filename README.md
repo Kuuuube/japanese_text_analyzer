@@ -36,7 +36,7 @@ japanese_text_analyzer "./example path/" --any=.html
 
 ## Sample Output
 
-`analysis.txt`
+`analysis.txt` (Stats on the analyzed text)
 ```
 ./sample_manga/
 ----------------------------------------------------------------------------
@@ -52,7 +52,7 @@ Average page length in characters: 103 (422 total pages)
 Average textbox length in characters: 11 (shortest: 1) (longest: 254) (4302 total textboxes)
 ```
 
-`word_list.csv`
+`word_list.csv` (Deduped list of words along with the number of times they were found in the analyzed text)
 ```
 て	831
 の	805
@@ -66,7 +66,7 @@ Average textbox length in characters: 11 (shortest: 1) (longest: 254) (4302 tota
 ... (3510 more lines)
 ```
 
-`word_list_raw.csv`
+`word_list_raw.csv` (Unsorted list of words found in the analyzed text)
 ```
 まぁ
 まぁ
