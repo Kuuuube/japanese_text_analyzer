@@ -84,14 +84,14 @@ pub fn filter_duplicate_ascii(input_string: String) -> Vec<String> {
                 result_strings.push(current_chars.into_iter().collect());
                 current_chars = vec![];
                 last_char_ascii = true;
-            },
+            }
             (false, true) => {
                 current_chars.push(char);
                 last_char_ascii = false;
-            },
+            }
             (false, false) => {
                 current_chars.push(char);
-            },
+            }
         }
     }
 
