@@ -6,9 +6,14 @@ pub fn get_args(args: Vec<String>) -> JapaneseTextAnalyzerArgs {
     for arg in args_clone {
         if arg.starts_with("--") {
             match arg.as_str() {
-                "--mokurojson" => {japanese_text_analyzer_args.analysis_type = AnalysisType::MokuroJson},
-                "--txt" => {japanese_text_analyzer_args.analysis_type = AnalysisType::Txt},
-                "--any" => {japanese_text_analyzer_args.analysis_type = AnalysisType::Any},
+                "--mokurojson" => {
+                    japanese_text_analyzer_args.analysis_type = AnalysisType::MokuroJson;
+                    japanese_text_analyzer_args.extension = ".json".to_string();
+                },
+                "--any" => {
+                    japanese_text_analyzer_args.analysis_type = AnalysisType::Any;
+                    japanese_text_analyzer_args.extension = "".to_string();
+                },
                 _ => {}
             }
         } else {
@@ -22,11 +27,11 @@ pub fn get_args(args: Vec<String>) -> JapaneseTextAnalyzerArgs {
 pub struct JapaneseTextAnalyzerArgs {
     pub start_path: String,
     pub analysis_type: AnalysisType,
+    pub extension: String,
 }
 
 #[derive(Debug, Default)]
 pub enum AnalysisType {
     #[default] MokuroJson,
-    Txt,
     Any
 }

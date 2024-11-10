@@ -14,8 +14,6 @@ japanese_text_analyzer directory_or_file_path OPTIONS
 
     Note: The Mokuro `_ocr` json files **must** be present.
 
-- `--txt`: Searches only for `.txt` files in the specified path.
-
 - `--any`: Searches for all files in the specified path.
 
 ## Examples
