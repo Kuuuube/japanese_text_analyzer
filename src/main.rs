@@ -66,11 +66,10 @@ fn main() {
     );
 
     let format_specific_stats = match parsed_args.analysis_type {
-        AnalysisType::MokuroJson => format!("{}{} ({} total volumes)\n{}{} ({} total pages)\n{}{} (shortest: {}) (longest: {}) ({} total textboxes)",
+        AnalysisType::MokuroJson | AnalysisType::Mokuro=> format!("{}{} ({} total volumes)\n{}{} ({} total pages)\n{}{} (shortest: {}) (longest: {}) ({} total textboxes)",
             "Average volume length in characters: ", stats.avg_volume_length, stats.volume_count,
             "Average page length in characters: ", stats.avg_page_length, stats.page_count,
             "Average textbox length in characters: ", stats.avg_box_length, stats.shortest_box_length, stats.longest_box_length, stats.box_count),
-        AnalysisType::Mokuro => "".to_string(),
         AnalysisType::Any => "".to_string(),
     };
 
