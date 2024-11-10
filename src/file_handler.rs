@@ -96,7 +96,15 @@ pub fn get_plain_file_data(filepaths: Vec<PathBuf>) -> Vec<String> {
                         let current_string_clone = current_string.clone();
                         let split_string = current_string_clone.as_bytes().split_at(SUDACHI_MAX_TOKENIZER_LENGTH);
                         current_string = String::from_utf8_lossy(split_string.1).to_string();
-                        String::from_utf8_lossy(split_string.0).to_string()
+                        let expected_string_len = split_string.0.len();
+                        let lossy_string = String::from_utf8_lossy(split_string.0).to_string();
+                        if lossy_string.len() > expected_string_len { //if `from_utf8_lossy` creates a replacement character `�` it needs to be chopped off
+                            let mut lossy_chars = lossy_string.chars();
+                            lossy_chars.next_back();
+                            lossy_chars.collect()
+                        } else {
+                            lossy_string
+                        }
                     } else {
                         current_string = "".to_string();
                         current_string.clone()
