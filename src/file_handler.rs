@@ -81,10 +81,7 @@ pub fn get_plain_file_data(filepaths: Vec<PathBuf>) -> Vec<String> {
             Ok(ok) => ok.split("\n").map(|x| x.to_owned()).collect(),
             Err(err) => {
                 let filepath_str = filepath.to_str().unwrap_or("failed to display filepath");
-                println!(
-                    "Failed to read file `{}`\nError: `{}`",
-                    filepath_str, err
-                );
+                println!("Failed to read file `{}`\nError: `{}`", filepath_str, err);
                 continue;
             }
         };

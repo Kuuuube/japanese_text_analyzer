@@ -2,7 +2,8 @@
 #[test]
 pub fn parse_minimal_synthetic_json() {
     //load file and extract text
-    let json_files = crate::file_handler::get_files("./src/tests/data/minimal_synthetic.json", ".json");
+    let json_files =
+        crate::file_handler::get_files("./src/tests/data/minimal_synthetic.json", ".json");
     println!("{:?}", json_files);
 
     let lines = crate::file_handler::get_json_file_data(json_files);

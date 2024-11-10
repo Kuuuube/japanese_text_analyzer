@@ -2,10 +2,10 @@ use args_parser::AnalysisType;
 use sudachi::dic::dictionary::JapaneseDictionary;
 
 mod analyzer;
+mod args_parser;
 mod dict_handler;
 mod file_handler;
 mod tests;
-mod args_parser;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -103,6 +103,7 @@ fn main() {
             vec
         })
         .join("\n");
+
     let mut word_list_file =
         std::fs::File::create(&"word_list.csv").expect("Failed to create word list file");
     std::io::Write::write_all(

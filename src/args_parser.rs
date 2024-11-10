@@ -10,15 +10,15 @@ pub fn get_args(args: Vec<String>) -> JapaneseTextAnalyzerArgs {
                 "--mokurojson" => {
                     japanese_text_analyzer_args.analysis_type = AnalysisType::MokuroJson;
                     japanese_text_analyzer_args.extension = ".json".to_string();
-                },
+                }
                 "--mokuro" => {
                     japanese_text_analyzer_args.analysis_type = AnalysisType::Mokuro;
                     japanese_text_analyzer_args.extension = ".mokuro".to_string();
-                },
+                }
                 "--any" => {
                     japanese_text_analyzer_args.analysis_type = AnalysisType::Any;
                     japanese_text_analyzer_args.extension = split_arg.1.to_string();
-                },
+                }
                 _ => {}
             }
         } else {
@@ -49,5 +49,5 @@ impl JapaneseTextAnalyzerArgs {
 pub enum AnalysisType {
     MokuroJson,
     Mokuro,
-    Any
+    Any,
 }
