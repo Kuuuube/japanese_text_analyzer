@@ -16,6 +16,8 @@ japanese_text_analyzer directory_or_file_path OPTIONS
 
 - `--any`: Searches for all files in the specified path.
 
+- `--any=EXTENSION`: Searches for all files matching the file extension in the specified path.
+
 ## Examples
 
 ```
@@ -23,6 +25,9 @@ japanese_text_analyzer ./mokuro_manga_path/
 ```
 ```
 japanese_text_analyzer "./example path/" --any
+```
+```
+japanese_text_analyzer "./example path/" --any=.html
 ```
 
 ## Sample Output

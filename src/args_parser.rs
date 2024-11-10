@@ -5,14 +5,15 @@ pub fn get_args(args: Vec<String>) -> JapaneseTextAnalyzerArgs {
 
     for arg in args_clone {
         if arg.starts_with("--") {
-            match arg.as_str() {
+            let split_arg = arg.split_once("=").unwrap_or_else(|| (&arg, ""));
+            match split_arg.0 {
                 "--mokurojson" => {
                     japanese_text_analyzer_args.analysis_type = AnalysisType::MokuroJson;
                     japanese_text_analyzer_args.extension = ".json".to_string();
                 },
                 "--any" => {
                     japanese_text_analyzer_args.analysis_type = AnalysisType::Any;
-                    japanese_text_analyzer_args.extension = "".to_string();
+                    japanese_text_analyzer_args.extension = split_arg.1.to_string();
                 },
                 _ => {}
             }
