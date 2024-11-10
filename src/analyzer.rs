@@ -94,6 +94,7 @@ pub fn filter_duplicate_ascii(input_string: String) -> Vec<String> {
             }
         }
     }
+    result_strings.push(current_chars.into_iter().collect());
 
     return result_strings;
 }
