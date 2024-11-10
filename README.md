@@ -14,6 +14,10 @@ japanese_text_analyzer directory_or_file_path OPTIONS
 
     Note: The Mokuro `_ocr` json files **must** be present.
 
+- `--mokuro`: Searches only for `.mokuro` files in the specified path.
+
+    Note: The Mokuro `.mokuro` files **must** be present.
+
 - `--any`: Searches for all files in the specified path.
 
 - `--any=EXTENSION`: Searches for all files matching the file extension in the specified path.

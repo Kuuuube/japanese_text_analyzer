@@ -13,6 +13,7 @@ fn main() {
 
     let (media_type, enumeration_name) = match parsed_args.analysis_type {
         AnalysisType::MokuroJson => ("manga volumes", "pages"),
+        AnalysisType::Mokuro => ("manga volumes", "files"),
         AnalysisType::Any => ("files", "files"),
     };
 
@@ -34,6 +35,7 @@ fn main() {
     let start_time = std::time::Instant::now();
     let lines = match parsed_args.analysis_type {
         AnalysisType::MokuroJson => file_handler::get_json_file_data(files),
+        AnalysisType::Mokuro => file_handler::get_mokuro_file_data(files),
         AnalysisType::Any => file_handler::get_plain_file_data(files),
     };
     println!(
@@ -68,6 +70,7 @@ fn main() {
             "Average volume length in characters: ", stats.avg_volume_length, stats.volume_count,
             "Average page length in characters: ", stats.avg_page_length, stats.page_count,
             "Average textbox length in characters: ", stats.avg_box_length, stats.shortest_box_length, stats.longest_box_length, stats.box_count),
+        AnalysisType::Mokuro => "".to_string(),
         AnalysisType::Any => "".to_string(),
     };
 

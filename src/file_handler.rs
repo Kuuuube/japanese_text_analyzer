@@ -46,6 +46,34 @@ pub fn get_json_file_data(filepaths: Vec<PathBuf>) -> Vec<String> {
     return lines;
 }
 
+pub fn get_mokuro_file_data(filepaths: Vec<PathBuf>) -> Vec<String> {
+    let mut lines: Vec<String> = Default::default();
+    for filepath in filepaths {
+        let json_data = match std::fs::read_to_string(&filepath) {
+            Ok(ok) => ok,
+            Err(err) => {
+                let filepath_str = filepath.to_str().unwrap_or("failed to display filepath");
+                println!(
+                    "Failed to read json file `{}`\nError: `{}`",
+                    filepath_str, err
+                );
+                continue;
+            }
+        };
+        match serde_json::from_str::<MokuroFile>(&json_data) {
+            Ok(ok) => {
+                for page in ok.pages {
+                    for block in page.blocks {
+                        lines.push(block.lines.concat());
+                    }
+                }
+            }
+            Err(_) => {}
+        }
+    }
+    return lines;
+}
+
 pub fn get_plain_file_data(filepaths: Vec<PathBuf>) -> Vec<String> {
     let mut lines: Vec<String> = Default::default();
     for filepath in filepaths {
@@ -81,6 +109,16 @@ pub fn get_plain_file_data(filepaths: Vec<PathBuf>) -> Vec<String> {
         }
     }
     return lines;
+}
+
+#[derive(Debug, Deserialize)]
+struct MokuroFile {
+    //version: String,
+    //title: String,
+    //title_uuid: String,
+    //volume: String,
+    //volume_uuid: String,
+    pages: Vec<MokuroJson>,
 }
 
 #[derive(Debug, Deserialize)]
