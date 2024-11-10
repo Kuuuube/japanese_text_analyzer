@@ -28,16 +28,26 @@ pub fn get_args(args: Vec<String>) -> JapaneseTextAnalyzerArgs {
     return japanese_text_analyzer_args;
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct JapaneseTextAnalyzerArgs {
     pub start_path: String,
     pub analysis_type: AnalysisType,
     pub extension: String,
 }
 
-#[derive(Debug, Default)]
+impl JapaneseTextAnalyzerArgs {
+    fn default() -> Self {
+        JapaneseTextAnalyzerArgs {
+            start_path: "".to_string(),
+            analysis_type: AnalysisType::MokuroJson,
+            extension: ".json".to_string(),
+        }
+    }
+}
+
+#[derive(Debug)]
 pub enum AnalysisType {
-    #[default] MokuroJson,
+    MokuroJson,
     Mokuro,
     Any
 }
