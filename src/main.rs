@@ -13,8 +13,8 @@ fn main() {
 
     let (media_type, enumeration_name) = match parsed_args.analysis_type {
         AnalysisType::MokuroJson => ("manga volumes", "pages"),
-        AnalysisType::Mokuro => ("manga volumes", "files"),
-        AnalysisType::Any => ("files", "files"),
+        AnalysisType::Mokuro => ("path", "manga volumes"),
+        AnalysisType::Any => ("path", "files"),
     };
 
     println!("Finding {} in {}", media_type, parsed_args.start_path);
