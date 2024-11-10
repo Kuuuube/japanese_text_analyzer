@@ -66,6 +66,17 @@ Average textbox length in characters: 11 (shortest: 1) (longest: 254) (4302 tota
 ... (3510 more lines)
 ```
 
+`word_list_raw.csv`
+```
+まぁ
+まぁ
+話し
+て
+き
+まし
+... (25198 more lines)
+```
+
 ## Building
 
 Linux:
