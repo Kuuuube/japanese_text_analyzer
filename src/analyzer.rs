@@ -73,27 +73,29 @@ pub struct BoxLength {
 }
 
 pub fn filter_duplicate_ascii(input_string: String) -> Vec<String> {
-    let mut result_chars: Vec<char> = vec![];
+    let mut result_strings: Vec<String> = vec![];
+    let mut current_chars: Vec<char> = vec![];
     let mut last_char_ascii = false;
 
     for char in input_string.chars() {
         match (check_if_ascii(char as u32), last_char_ascii) {
             (true, true) => (),
             (true, false) => {
-                result_chars.push('\n');
+                result_strings.push(current_chars.into_iter().collect());
+                current_chars = vec![];
                 last_char_ascii = true;
             },
             (false, true) => {
-                result_chars.push(char);
+                current_chars.push(char);
                 last_char_ascii = false;
             },
             (false, false) => {
-                result_chars.push(char);
+                current_chars.push(char);
             },
         }
     }
 
-    return result_chars.into_iter().collect::<String>().split("\n").map(|x| x.to_owned()).collect();
+    return result_strings;
 }
 
 pub fn filter_non_japanese(chars: &Vec<char>) -> Vec<char> {
