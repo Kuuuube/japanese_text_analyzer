@@ -188,14 +188,11 @@ pub fn get_fancy_percentage(base: usize, percent: usize) -> String {
     return format!("{:.2}%", percent as f64 / base as f64 * 100.0);
 }
 
-pub fn bounded_min<T: PartialEq + PartialOrd>(val1: T, val2: T, min: T) -> T {
-    if val1 < min || val2 < min {
-        return min;
-    }
+pub fn bounded_min<T: PartialEq + PartialOrd + Ord>(val1: T, val2: T, min: T) -> T {
     if val1 < val2 {
-        return val1;
+        return T::max(val1, min);
     }
-    return val2;
+    return T::max(val2, min);
 }
 
 pub fn merge_hashmap<T: ToOwned<Owned = T> + Eq + Hash>(
