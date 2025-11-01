@@ -20,86 +20,80 @@ pub fn get_files(directory: &str, extension: &str) -> Vec<std::path::PathBuf> {
     return json_files;
 }
 
-pub fn get_json_file_data(filepaths: Vec<PathBuf>) -> Vec<String> {
+pub fn get_json_file_data(filepath: PathBuf) -> Option<Vec<String>> {
     let mut lines: Vec<String> = Default::default();
-    for filepath in filepaths {
-        let json_data = match std::fs::read_to_string(&filepath) {
-            Ok(ok) => ok,
-            Err(err) => {
-                let filepath_str = filepath.to_str().unwrap_or("failed to display filepath");
-                println!(
-                    "Failed to read json file `{}`\nError: `{}`",
-                    filepath_str, err
-                );
-                continue;
+    let json_data = match std::fs::read_to_string(&filepath) {
+        Ok(ok) => ok,
+        Err(err) => {
+            let filepath_str = filepath.to_str().unwrap_or("failed to display filepath");
+            println!(
+                "Failed to read json file `{}`\nError: `{}`",
+                filepath_str, err
+            );
+            return None;
+        }
+    };
+    match serde_json::from_str::<MokuroJson>(&json_data) {
+        Ok(ok) => {
+            for block in ok.blocks {
+                lines.push(block.lines.concat());
             }
-        };
-        match serde_json::from_str::<MokuroJson>(&json_data) {
-            Ok(ok) => {
-                for block in ok.blocks {
+        }
+        Err(_) => {}
+    }
+    return Some(lines);
+}
+
+pub fn get_mokuro_file_data(filepath: PathBuf) -> Option<Vec<String>> {
+    let mut lines: Vec<String> = Default::default();
+    let json_data = match std::fs::read_to_string(&filepath) {
+        Ok(ok) => ok,
+        Err(err) => {
+            let filepath_str = filepath.to_str().unwrap_or("failed to display filepath");
+            println!(
+                "Failed to read json file `{}`\nError: `{}`",
+                filepath_str, err
+            );
+            return None;
+        }
+    };
+    match serde_json::from_str::<MokuroFile>(&json_data) {
+        Ok(ok) => {
+            for page in ok.pages {
+                for block in page.blocks {
                     lines.push(block.lines.concat());
                 }
             }
-            Err(_) => {}
         }
+        Err(_) => {}
     }
-    return lines;
+    return Some(lines);
 }
 
-pub fn get_mokuro_file_data(filepaths: Vec<PathBuf>) -> Vec<String> {
+pub fn get_plain_file_data(filepath: PathBuf) -> Option<Vec<String>> {
     let mut lines: Vec<String> = Default::default();
-    for filepath in filepaths {
-        let json_data = match std::fs::read_to_string(&filepath) {
-            Ok(ok) => ok,
-            Err(err) => {
-                let filepath_str = filepath.to_str().unwrap_or("failed to display filepath");
-                println!(
-                    "Failed to read json file `{}`\nError: `{}`",
-                    filepath_str, err
-                );
-                continue;
-            }
-        };
-        match serde_json::from_str::<MokuroFile>(&json_data) {
-            Ok(ok) => {
-                for page in ok.pages {
-                    for block in page.blocks {
-                        lines.push(block.lines.concat());
-                    }
-                }
-            }
-            Err(_) => {}
+    let txt_strings: Vec<String> = match std::fs::read_to_string(&filepath) {
+        Ok(ok) => ok.split("\n").map(|x| x.to_owned()).collect(),
+        Err(err) => {
+            let filepath_str = filepath.to_str().unwrap_or("failed to display filepath");
+            println!("Failed to read file `{}`\nError: `{}`", filepath_str, err);
+            return None;
         }
-    }
-    return lines;
-}
-
-pub fn get_plain_file_data(filepaths: Vec<PathBuf>) -> Vec<String> {
-    let mut lines: Vec<String> = Default::default();
-    for filepath in filepaths {
-        let txt_strings: Vec<String> = match std::fs::read_to_string(&filepath) {
-            Ok(ok) => ok.split("\n").map(|x| x.to_owned()).collect(),
-            Err(err) => {
-                let filepath_str = filepath.to_str().unwrap_or("failed to display filepath");
-                println!("Failed to read file `{}`\nError: `{}`", filepath_str, err);
-                continue;
-            }
-        };
-        for txt_string in txt_strings {
-            let filtered_txt_strings = crate::analyzer::filter_duplicate_ascii(txt_string);
-            for filtered_txt_string in filtered_txt_strings {
-                if filtered_txt_string.len() > SUDACHI_MAX_TOKENIZER_LENGTH {
-                    lines.append(&mut chunk_utf8_string(
-                        filtered_txt_string,
-                        SUDACHI_MAX_TOKENIZER_LENGTH,
-                    ));
-                } else {
-                    lines.push(filtered_txt_string);
-                }
+    };
+    for txt_string in txt_strings {
+        let filtered_txt_strings = crate::analyzer::filter_duplicate_ascii(txt_string);
+        for filtered_txt_string in filtered_txt_strings {
+            if filtered_txt_string.len() > SUDACHI_MAX_TOKENIZER_LENGTH {
+                lines.append(&mut chunk_utf8_string(
+                    filtered_txt_string,
+                    SUDACHI_MAX_TOKENIZER_LENGTH,
+                ));
+            } else {
+                lines.push(filtered_txt_string);
             }
         }
     }
-    return lines;
+    return Some(lines);
 }
 
 fn chunk_utf8_string(input_string: String, chunk_size: usize) -> Vec<String> {
