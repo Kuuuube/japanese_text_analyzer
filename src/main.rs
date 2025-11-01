@@ -10,6 +10,7 @@ mod args_parser;
 mod dict_handler;
 mod file_handler;
 mod tests;
+mod utf8_bufreader;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
