@@ -1,4 +1,28 @@
 #[cfg(test)]
+const EXPECTED_LINES: [[&str; 4]; 1] = [[
+    "医薬品安全管理責任者",
+    "消費者安全調査委員会",
+    "さっぽろテレビ塔",
+    "カンヌ国際映画祭",
+]];
+#[cfg(test)]
+const EXPECTED_TOKENIZED_DATA: [&str; 13] = [
+    "医薬品",
+    "安全",
+    "管理",
+    "責任者",
+    "消費者",
+    "安全",
+    "調査",
+    "委員会",
+    "さっぽろ",
+    "テレビ塔",
+    "カンヌ",
+    "国際",
+    "映画祭",
+];
+
+#[cfg(test)]
 #[test]
 pub fn parse_minimal_synthetic_json() {
     //load file and extract text
@@ -7,40 +31,19 @@ pub fn parse_minimal_synthetic_json() {
     dbg!("{:?}", &json_files);
     assert!(json_files.len() == 1);
 
-    let maybe_lines =
+    let lines_groupings =
         crate::file_handler::get_json_file_data(json_files.get(0).unwrap().to_path_buf());
-    let expected_lines = vec![
-        "医薬品安全管理責任者".to_owned(),
-        "消費者安全調査委員会".to_owned(),
-        "さっぽろテレビ塔".to_owned(),
-        "カンヌ国際映画祭".to_owned(),
-    ];
-    assert!(maybe_lines == Some(expected_lines));
+    assert!(lines_groupings == EXPECTED_LINES);
 
     //tokenize text
     let dict: sudachi::dic::dictionary::JapaneseDictionary =
         crate::dict_handler::make_sudachi_dict().expect("Failed to load tokenizer dictionary");
     let tokenizer = sudachi::analysis::stateless_tokenizer::StatelessTokenizer::new(&dict);
     let mut tokenized_data = vec![];
-    if let Some(lines) = maybe_lines {
-        tokenized_data = crate::run_tokenization(&lines, &tokenizer);
+    for lines in lines_groupings {
+        tokenized_data.append(&mut crate::run_tokenization(&lines, &tokenizer));
     }
-    let expected_tokenized_data = vec![
-        "医薬品".to_owned(),
-        "安全".to_owned(),
-        "管理".to_owned(),
-        "責任者".to_owned(),
-        "消費者".to_owned(),
-        "安全".to_owned(),
-        "調査".to_owned(),
-        "委員会".to_owned(),
-        "さっぽろ".to_owned(),
-        "テレビ塔".to_owned(),
-        "カンヌ".to_owned(),
-        "国際".to_owned(),
-        "映画祭".to_owned(),
-    ];
-    assert!(tokenized_data == expected_tokenized_data);
+    assert!(tokenized_data == EXPECTED_TOKENIZED_DATA);
 }
 
 #[test]
@@ -50,38 +53,17 @@ pub fn parse_minimal_synthetic_any() {
     dbg!("{:?}", &any_files);
     assert!(any_files.len() == 1);
 
-    let maybe_lines =
+    let lines_groupings =
         crate::file_handler::get_plain_file_data(any_files.get(0).unwrap().to_path_buf());
-    let expected_lines = vec![
-        "医薬品安全管理責任者".to_owned(),
-        "消費者安全調査委員会".to_owned(),
-        "さっぽろテレビ塔".to_owned(),
-        "カンヌ国際映画祭".to_owned(),
-    ];
-    assert!(maybe_lines == Some(expected_lines));
+    assert!(lines_groupings == EXPECTED_LINES);
 
     //tokenize text
     let dict: sudachi::dic::dictionary::JapaneseDictionary =
         crate::dict_handler::make_sudachi_dict().expect("Failed to load tokenizer dictionary");
     let tokenizer = sudachi::analysis::stateless_tokenizer::StatelessTokenizer::new(&dict);
     let mut tokenized_data = vec![];
-    if let Some(lines) = maybe_lines {
-        tokenized_data = crate::run_tokenization(&lines, &tokenizer);
+    for lines in lines_groupings {
+        tokenized_data.append(&mut crate::run_tokenization(&lines, &tokenizer));
     }
-    let expected_tokenized_data = vec![
-        "医薬品".to_owned(),
-        "安全".to_owned(),
-        "管理".to_owned(),
-        "責任者".to_owned(),
-        "消費者".to_owned(),
-        "安全".to_owned(),
-        "調査".to_owned(),
-        "委員会".to_owned(),
-        "さっぽろ".to_owned(),
-        "テレビ塔".to_owned(),
-        "カンヌ".to_owned(),
-        "国際".to_owned(),
-        "映画祭".to_owned(),
-    ];
-    assert!(tokenized_data == expected_tokenized_data);
+    assert!(tokenized_data == EXPECTED_TOKENIZED_DATA);
 }
