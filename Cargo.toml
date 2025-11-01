@@ -1,7 +1,7 @@
 [package]
 name = "japanese_text_analyzer"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 sudachi = { git = "https://github.com/WorksApplications/sudachi.rs", rev = "d78bf49e8473a5895e542c54f9e7375e9c009e26"  }

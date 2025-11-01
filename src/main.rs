@@ -47,7 +47,7 @@ fn main() {
             AnalysisType::Mokuro => file_handler::get_mokuro_file_data(file),
             AnalysisType::Any => file_handler::get_plain_file_data(file),
         };
-        if let Some(lines) = maybe_lines {
+        if let Some(lines) = maybe_lines && lines.len() > 0 {
             let morpheme_surfaces = run_tokenization(&lines, &dict);
             let new_stats = get_stats(lines, morpheme_surfaces, file_count, dir_count);
             stats.combine(new_stats);
