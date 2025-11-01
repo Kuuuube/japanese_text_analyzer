@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
 use args_parser::AnalysisType;
-use sudachi::dic::dictionary::JapaneseDictionary;
+use sudachi::{analysis::stateless_tokenizer::StatelessTokenizer, dic::dictionary::JapaneseDictionary};
 
 mod analyzer;
 mod args_parser;
@@ -36,6 +36,7 @@ fn main() {
     println!("Loading tokenizer dictionary");
     let start_time = std::time::Instant::now();
     let dict = dict_handler::make_sudachi_dict().expect("Failed to load tokenizer dictionary");
+    let tokenizer = sudachi::analysis::stateless_tokenizer::StatelessTokenizer::new(&dict);
     println!("Dictionary loaded ({}ms)", start_time.elapsed().as_millis());
 
     println!("Processing files, running tokenizer, and analyzing results");
@@ -50,7 +51,7 @@ fn main() {
         if let Some(lines) = maybe_lines
             && lines.len() > 0
         {
-            let morpheme_surfaces = run_tokenization(&lines, &dict);
+            let morpheme_surfaces = run_tokenization(&lines, &tokenizer);
             let new_stats = get_stats(lines, morpheme_surfaces, file_count, dir_count);
             stats.combine(new_stats);
         }
@@ -149,12 +150,11 @@ fn main() {
     .expect("Failed to write word list raw file");
 }
 
-fn run_tokenization(lines: &Vec<String>, dict: &JapaneseDictionary) -> Vec<String> {
-    let tokenizer = sudachi::analysis::stateless_tokenizer::StatelessTokenizer::new(dict);
+fn run_tokenization(lines: &Vec<String>, tokenizer: &StatelessTokenizer<&JapaneseDictionary>) -> Vec<String> {
     let mut morpheme_surfaces: Vec<String> = Default::default();
     for line in lines {
         let morphemes = match sudachi::analysis::Tokenize::tokenize(
-            &tokenizer,
+            tokenizer,
             line,
             dict_handler::get_mode(),
             false,
