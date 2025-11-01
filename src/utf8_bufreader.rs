@@ -6,13 +6,14 @@ use std::{
 
 /// Safely reads a UTF8 file buffered without chopping multi-byte characters in half.
 ///
-/// Iterator returns `None` upon finding invalid UTF8 and once the file has been completed.
+/// Iterator returns `None` upon finding invalid UTF8 (enable `read_unsafe` to override this) and once the file has been completed.
 ///
 /// Iterator `String` chunks will always be less than or equal to the provided `buffer_size`.
 pub struct Utf8BufReader {
     file: File,
     buffer: Vec<u8>,
     end_of_file: bool,
+    read_unsafe: bool,
 }
 
 impl Utf8BufReader {
@@ -22,7 +23,12 @@ impl Utf8BufReader {
             file: file,
             buffer: vec![0u8; buffer_size],
             end_of_file: false,
+            read_unsafe: false,
         })
+    }
+
+    pub fn read_unsafe(&mut self, read_unsafe: bool) {
+        self.read_unsafe = read_unsafe;
     }
 }
 
@@ -38,7 +44,7 @@ impl Iterator for Utf8BufReader {
         let bytes_filled = self.file.read(&mut self.buffer).ok()?;
         self.end_of_file = bytes_filled < buffer_length;
         self.buffer.resize(bytes_filled, b'\0');
-        let (file_contents, seek_position) = parse_utf8_buffer(&self.buffer);
+        let (file_contents, seek_position) = parse_utf8_buffer(&self.buffer, self.read_unsafe);
         if file_contents.len() == 0 {
             return None;
         }
@@ -49,16 +55,21 @@ impl Iterator for Utf8BufReader {
     }
 }
 
-fn parse_utf8_buffer(file_buffer: &Vec<u8>) -> (String, usize) {
+fn parse_utf8_buffer(file_buffer: &Vec<u8>, read_unsafe: bool) -> (String, usize) {
     let mut seek_position: usize = file_buffer.len();
     let utf8_string = match std::str::from_utf8(file_buffer) {
         Ok(ok) => ok.to_string(),
         Err(err) => {
             seek_position = err.valid_up_to();
-            //should never panic as long as seek_position = err.valid_up_to()
-            std::str::from_utf8(&file_buffer[0..seek_position])
-                .unwrap()
-                .to_string()
+            if seek_position == 0 && read_unsafe {
+                seek_position = file_buffer.len();
+                unsafe { std::str::from_utf8_unchecked(&file_buffer) }.to_string()
+            } else {
+                //should never panic as long as seek_position = err.valid_up_to()
+                std::str::from_utf8(&file_buffer[0..seek_position])
+                    .unwrap()
+                    .to_string()
+            }
         }
     };
     (utf8_string, seek_position)
