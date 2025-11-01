@@ -1,7 +1,9 @@
 use std::collections::{HashMap, HashSet};
 
 use args_parser::AnalysisType;
-use sudachi::{analysis::stateless_tokenizer::StatelessTokenizer, dic::dictionary::JapaneseDictionary};
+use sudachi::{
+    analysis::stateless_tokenizer::StatelessTokenizer, dic::dictionary::JapaneseDictionary,
+};
 
 mod analyzer;
 mod args_parser;
@@ -150,7 +152,10 @@ fn main() {
     .expect("Failed to write word list raw file");
 }
 
-fn run_tokenization(lines: &Vec<String>, tokenizer: &StatelessTokenizer<&JapaneseDictionary>) -> Vec<String> {
+fn run_tokenization(
+    lines: &Vec<String>,
+    tokenizer: &StatelessTokenizer<&JapaneseDictionary>,
+) -> Vec<String> {
     let mut morpheme_surfaces: Vec<String> = Default::default();
     for line in lines {
         let morphemes = match sudachi::analysis::Tokenize::tokenize(
