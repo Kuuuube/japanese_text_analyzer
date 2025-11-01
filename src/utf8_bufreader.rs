@@ -1,4 +1,8 @@
-use std::{fs::File, io::{Read, Seek}, path::PathBuf};
+use std::{
+    fs::File,
+    io::{Read, Seek},
+    path::PathBuf,
+};
 
 /// Safely reads a UTF8 file buffered without chopping multi-byte characters in half.
 ///
@@ -12,7 +16,11 @@ pub struct Utf8BufReader {
 impl Utf8BufReader {
     pub fn new(file_path: &PathBuf, buffer_size: usize) -> Result<Self, std::io::Error> {
         let file = File::open(file_path)?;
-        Ok(Self { file: file, buffer: vec![0u8; buffer_size], end_of_file: false })
+        Ok(Self {
+            file: file,
+            buffer: vec![0u8; buffer_size],
+            end_of_file: false,
+        })
     }
 }
 
@@ -26,10 +34,12 @@ impl Iterator for Utf8BufReader {
 
         let buffer_length = self.buffer.len();
         let bytes_filled = self.file.read(&mut self.buffer).ok()?;
-        self.end_of_file =  bytes_filled < buffer_length;
+        self.end_of_file = bytes_filled < buffer_length;
         self.buffer.resize(bytes_filled, b'\0');
         let (file_contents, seek_position) = parse_utf8_buffer(&self.buffer);
-        let _ = self.file.seek(std::io::SeekFrom::Current(seek_position as i64 - buffer_length as i64));
+        let _ = self.file.seek(std::io::SeekFrom::Current(
+            seek_position as i64 - buffer_length as i64,
+        ));
         return Some(file_contents);
     }
 }
