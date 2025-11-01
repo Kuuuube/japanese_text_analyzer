@@ -1,8 +1,11 @@
 use serde::Deserialize;
 use std::path::PathBuf;
 
+use crate::utf8_bufreader::Utf8BufReader;
+
 //https://github.com/WorksApplications/sudachi.rs/blob/d78bf49e8473a5895e542c54f9e7375e9c009e26/sudachi/src/input_text/buffer/mod.rs#L32C27-L32C52
 const SUDACHI_MAX_TOKENIZER_LENGTH: usize = u16::MAX as usize / 4 * 3;
+const DEFAULT_PLAIN_BUFFER_SIZE: usize = 10_000_000;
 
 pub fn get_files(directory: &str, extension: &str) -> Vec<std::path::PathBuf> {
     let mut json_files: Vec<std::path::PathBuf> = Default::default();
@@ -109,6 +112,41 @@ fn chunk_utf8_string(input_string: String, chunk_size: usize) -> Vec<String> {
     }
     chunks.push(current_chunk);
     return chunks;
+}
+
+pub struct BufferedPlainLineReader {
+    bufreader: Utf8BufReader,
+}
+
+impl BufferedPlainLineReader {
+    pub fn new(file_path: &PathBuf) -> Result<Self, std::io::Error> {
+        Ok(BufferedPlainLineReader {
+            bufreader: Utf8BufReader::new(file_path, DEFAULT_PLAIN_BUFFER_SIZE)?,
+        })
+    }
+}
+
+impl Iterator for BufferedPlainLineReader {
+    type Item = Vec<String>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let mut lines: Vec<String> = Default::default();
+        let txt_strings: Vec<String> = self.bufreader.next()?.split("\n").map(|x| x.to_owned()).collect();
+        for txt_string in txt_strings {
+            let filtered_txt_strings = crate::analyzer::filter_duplicate_ascii(txt_string);
+            for filtered_txt_string in filtered_txt_strings {
+                if filtered_txt_string.len() > SUDACHI_MAX_TOKENIZER_LENGTH {
+                    lines.append(&mut chunk_utf8_string(
+                        filtered_txt_string,
+                        SUDACHI_MAX_TOKENIZER_LENGTH,
+                    ));
+                } else {
+                    lines.push(filtered_txt_string);
+                }
+            }
+        }
+        return Some(lines);
+    }
 }
 
 #[derive(Debug, Deserialize)]
