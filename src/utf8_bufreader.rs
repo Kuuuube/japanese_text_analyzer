@@ -6,7 +6,9 @@ use std::{
 
 /// Safely reads a UTF8 file buffered without chopping multi-byte characters in half.
 ///
-/// The iterator `String` chunks will always be less than or equal to the provided `buffer_size`.
+/// Iterator returns `None` upon finding invalid UTF8 and once the file has been completed.
+///
+/// Iterator `String` chunks will always be less than or equal to the provided `buffer_size`.
 pub struct Utf8BufReader {
     file: File,
     buffer: Vec<u8>,
@@ -37,6 +39,9 @@ impl Iterator for Utf8BufReader {
         self.end_of_file = bytes_filled < buffer_length;
         self.buffer.resize(bytes_filled, b'\0');
         let (file_contents, seek_position) = parse_utf8_buffer(&self.buffer);
+        if file_contents.len() == 0 {
+            return None;
+        }
         let _ = self.file.seek(std::io::SeekFrom::Current(
             seek_position as i64 - buffer_length as i64,
         ));
@@ -50,19 +55,10 @@ fn parse_utf8_buffer(file_buffer: &Vec<u8>) -> (String, usize) {
         Ok(ok) => ok.to_string(),
         Err(err) => {
             seek_position = err.valid_up_to();
-            if seek_position == 0 {
-                println!(
-                    "Invalid UTF-8 detected, output may not match input: {}",
-                    err
-                );
-                seek_position = file_buffer.len();
-                unsafe { std::str::from_utf8_unchecked(&file_buffer) }.to_string()
-            } else {
-                //should never panic as long as seek_position = err.valid_up_to()
-                std::str::from_utf8(&file_buffer[0..seek_position])
-                    .unwrap()
-                    .to_string()
-            }
+            //should never panic as long as seek_position = err.valid_up_to()
+            std::str::from_utf8(&file_buffer[0..seek_position])
+                .unwrap()
+                .to_string()
         }
     };
     (utf8_string, seek_position)
