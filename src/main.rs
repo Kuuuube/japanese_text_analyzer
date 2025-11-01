@@ -45,6 +45,8 @@ fn main() {
     println!("Processing files, running tokenizer, and analyzing results");
     let start_time = std::time::Instant::now();
     let mut stats: AnalysisStats = Default::default();
+    let mut word_list_raw_file =
+        std::fs::File::create(&"word_list_raw.csv").expect("Failed to create word list raw file");
     for file_path in files {
         let lines_groupings = match parsed_args.analysis_type {
             AnalysisType::MokuroJson => file_handler::get_json_file_data(file_path),
