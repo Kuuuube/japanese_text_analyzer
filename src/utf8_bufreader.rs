@@ -27,6 +27,7 @@ impl Utf8BufReader {
         })
     }
 
+    #[allow(dead_code)]
     pub fn read_unsafe(&mut self, read_unsafe: bool) {
         self.read_unsafe = read_unsafe;
     }
