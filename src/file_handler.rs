@@ -105,7 +105,12 @@ impl Iterator for BufferedPlainLineReader {
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut lines: Vec<String> = Default::default();
-        let txt_strings: Vec<String> = self.bufreader.next()?.split("\n").map(|x| x.to_owned()).collect();
+        let txt_strings: Vec<String> = self
+            .bufreader
+            .next()?
+            .split("\n")
+            .map(|x| x.to_owned())
+            .collect();
         for txt_string in txt_strings {
             let filtered_txt_strings = crate::analyzer::filter_duplicate_ascii(txt_string);
             for filtered_txt_string in filtered_txt_strings {

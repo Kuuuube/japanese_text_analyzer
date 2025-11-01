@@ -31,8 +31,7 @@ pub fn parse_minimal_synthetic_json() {
     dbg!("{:?}", &json_files);
     assert!(json_files.len() == 1);
 
-    let lines =
-        crate::file_handler::get_json_file_data(json_files.get(0).unwrap().to_path_buf());
+    let lines = crate::file_handler::get_json_file_data(json_files.get(0).unwrap().to_path_buf());
     assert!(vec![lines.clone()] == EXPECTED_LINES);
 
     //tokenize text
@@ -52,7 +51,8 @@ pub fn parse_minimal_synthetic_any() {
     assert!(any_files.len() == 1);
 
     let lines_groupings =
-        crate::file_handler::BufferedPlainLineReader::new(&any_files.get(0).unwrap().to_path_buf()).unwrap();
+        crate::file_handler::BufferedPlainLineReader::new(&any_files.get(0).unwrap().to_path_buf())
+            .unwrap();
     let mut all_lines = vec![];
     for lines in lines_groupings {
         all_lines.push(lines);
@@ -61,7 +61,8 @@ pub fn parse_minimal_synthetic_any() {
 
     //tokenize text
     let lines_groupings =
-        crate::file_handler::BufferedPlainLineReader::new(&any_files.get(0).unwrap().to_path_buf()).unwrap();
+        crate::file_handler::BufferedPlainLineReader::new(&any_files.get(0).unwrap().to_path_buf())
+            .unwrap();
     let dict: sudachi::dic::dictionary::JapaneseDictionary =
         crate::dict_handler::make_sudachi_dict().expect("Failed to load tokenizer dictionary");
     let tokenizer = sudachi::analysis::stateless_tokenizer::StatelessTokenizer::new(&dict);

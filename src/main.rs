@@ -1,4 +1,7 @@
-use std::{collections::{HashMap, HashSet}, sync::RwLock};
+use std::{
+    collections::{HashMap, HashSet},
+    sync::RwLock,
+};
 
 use args_parser::AnalysisType;
 use sudachi::{
@@ -59,10 +62,12 @@ fn main() {
                 )
                 .expect("Failed to write word list raw file");
                 {
-                    let mut stats = stats_rwlock.write().expect("Failed to lock stats for writing");
+                    let mut stats = stats_rwlock
+                        .write()
+                        .expect("Failed to lock stats for writing");
                     stats.combine(new_stats);
                 }
-            },
+            }
             AnalysisType::Mokuro => {
                 let lines = file_handler::get_mokuro_file_data(file_path);
                 let morpheme_surfaces = run_tokenization(&lines, &tokenizer);
@@ -73,12 +78,16 @@ fn main() {
                 )
                 .expect("Failed to write word list raw file");
                 {
-                    let mut stats = stats_rwlock.write().expect("Failed to lock stats for writing");
+                    let mut stats = stats_rwlock
+                        .write()
+                        .expect("Failed to lock stats for writing");
                     stats.combine(new_stats);
                 }
-            },
+            }
             AnalysisType::Any => {
-                if let Ok(buffered_plain_line_reader) = file_handler::BufferedPlainLineReader::new(&file_path) {
+                if let Ok(buffered_plain_line_reader) =
+                    file_handler::BufferedPlainLineReader::new(&file_path)
+                {
                     for lines in buffered_plain_line_reader {
                         let morpheme_surfaces = run_tokenization(&lines, &tokenizer);
                         let new_stats = get_stats(lines, morpheme_surfaces, file_count, dir_count);
@@ -88,12 +97,14 @@ fn main() {
                         )
                         .expect("Failed to write word list raw file");
                         {
-                            let mut stats = stats_rwlock.write().expect("Failed to lock stats for writing");
+                            let mut stats = stats_rwlock
+                                .write()
+                                .expect("Failed to lock stats for writing");
                             stats.combine(new_stats);
                         }
                     }
                 }
-            },
+            }
         };
     }
     println!(
@@ -101,7 +112,9 @@ fn main() {
         start_time.elapsed().as_millis()
     );
 
-    let stats = stats_rwlock.read().expect("Failed to lock stats for reading");
+    let stats = stats_rwlock
+        .read()
+        .expect("Failed to lock stats for reading");
 
     let format_specific_stats = match parsed_args.analysis_type {
         AnalysisType::MokuroJson => format!(
@@ -167,13 +180,14 @@ fn main() {
     std::io::Write::write_all(&mut stats_file, formatted_stats.as_bytes())
         .expect("Failed to write stats file");
 
-    let word_occurrence_list_formatted = analyzer::sort_occurrence_list(stats.word_occurrence_list.clone())
-        .into_iter()
-        .fold(Vec::new(), |mut vec, x| {
-            vec.push(x.0 + "\t" + &x.1.to_string());
-            vec
-        })
-        .join("\n");
+    let word_occurrence_list_formatted =
+        analyzer::sort_occurrence_list(stats.word_occurrence_list.clone())
+            .into_iter()
+            .fold(Vec::new(), |mut vec, x| {
+                vec.push(x.0 + "\t" + &x.1.to_string());
+                vec
+            })
+            .join("\n");
 
     let mut word_list_file =
         std::fs::File::create(&"word_list.csv").expect("Failed to create word list file");
