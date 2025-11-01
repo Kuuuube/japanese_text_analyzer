@@ -28,7 +28,7 @@ pub fn generate_occurrence_list<T: ToOwned<Owned = T> + Eq + Hash>(
         });
 }
 
-pub fn sort_occurrence_list(occurrence_list: &HashMap<String, i32>) -> Vec<(String, i32)> {
+pub fn sort_occurrence_list(occurrence_list: HashMap<String, i32>) -> Vec<(String, i32)> {
     let mut occurrence_list_sorted: Vec<(String, i32)> = occurrence_list
         .iter()
         .map(|x| (x.0.to_owned(), x.1.to_owned()))
@@ -37,13 +37,15 @@ pub fn sort_occurrence_list(occurrence_list: &HashMap<String, i32>) -> Vec<(Stri
     return occurrence_list_sorted;
 }
 
-pub fn find_single_occurrences<T: ToOwned<Owned = T>>(occurrence_list: &HashMap<T, i32>) -> Vec<T> {
+pub fn find_single_occurrences<T: ToOwned<Owned = T> + Eq + Hash>(
+    occurrence_list: &HashMap<T, i32>,
+) -> HashSet<T> {
     return occurrence_list
         .iter()
-        .fold(Vec::new(), |mut map: Vec<T>, x: (&T, &i32)| {
+        .fold(HashSet::new(), |mut map: HashSet<T>, x: (&T, &i32)| {
             if *x.1 == 1 {
-                map.push(x.0.to_owned())
-            };
+                map.insert(x.0.to_owned());
+            }
             map
         });
 }
@@ -107,7 +109,10 @@ pub fn filter_non_japanese(chars: &Vec<char>) -> Vec<char> {
         .collect();
 }
 
-pub fn filter_non_kanji(chars: &Vec<char>) -> Vec<char> {
+pub fn filter_non_kanji<T>(chars: &T) -> T
+where
+    T: IntoIterator<Item = char> + std::iter::FromIterator<char> + Clone,
+{
     return chars
         .to_owned()
         .into_iter()

@@ -1,3 +1,5 @@
+use std::collections::{HashMap, HashSet};
+
 use args_parser::AnalysisType;
 use sudachi::dic::dictionary::JapaneseDictionary;
 
@@ -31,37 +33,28 @@ fn main() {
         start_time.elapsed().as_millis()
     );
 
-    println!("Extracting text from {}", enumeration_name);
-    let start_time = std::time::Instant::now();
-    let lines = match parsed_args.analysis_type {
-        AnalysisType::MokuroJson => file_handler::get_json_file_data(files),
-        AnalysisType::Mokuro => file_handler::get_mokuro_file_data(files),
-        AnalysisType::Any => file_handler::get_plain_file_data(files),
-    };
-    println!(
-        "Extracted {} lines of text ({}ms)",
-        lines.len(),
-        start_time.elapsed().as_millis()
-    );
-
     println!("Loading tokenizer dictionary");
     let start_time = std::time::Instant::now();
     let dict = dict_handler::make_sudachi_dict().expect("Failed to load tokenizer dictionary");
     println!("Dictionary loaded ({}ms)", start_time.elapsed().as_millis());
 
-    println!("Running tokenizer");
+    println!("Processing files, running tokenizer, and analyzing results");
     let start_time = std::time::Instant::now();
-    let morpheme_surfaces = run_tokenization(&lines, &dict);
+    let mut stats: AnalysisStats = Default::default();
+    for file in files {
+        let maybe_lines = match parsed_args.analysis_type {
+            AnalysisType::MokuroJson => file_handler::get_json_file_data(file),
+            AnalysisType::Mokuro => file_handler::get_mokuro_file_data(file),
+            AnalysisType::Any => file_handler::get_plain_file_data(file),
+        };
+        if let Some(lines) = maybe_lines {
+            let morpheme_surfaces = run_tokenization(&lines, &dict);
+            let new_stats = get_stats(lines, morpheme_surfaces, file_count, dir_count);
+            stats.combine(new_stats);
+        }
+    }
     println!(
-        "Tokenizer finished ({}ms)",
-        start_time.elapsed().as_millis()
-    );
-
-    println!("Analyzing results");
-    let start_time = std::time::Instant::now();
-    let stats = get_stats(lines, morpheme_surfaces, file_count, dir_count);
-    println!(
-        "Analysis completed ({}ms)",
+        "Tokenizer and analysis finished ({}ms)",
         start_time.elapsed().as_millis()
     );
 
@@ -75,16 +68,21 @@ fn main() {
         "Average textbox length in characters: ", stats.avg_box_length, stats.shortest_box_length, stats.longest_box_length, stats.box_count),
     };
 
+    let unique_word_count = stats.unique_words.len();
+    let unique_kanji_count = stats.unique_kanji.len();
+    let word_count_single_occurrence = stats.words_single_occurrence.len();
+    let kanji_count_single_occurrence = stats.kanji_single_occurrence.len();
+
     let formatted_stats = format!("{}\n{}\n{}{}\n{}{}\n{}{}\n{}{} ({} of unique kanji)\n{}{}\n{}{} ({} of all words)\n{}{} ({} of unique words)\n{}",
         parsed_args.start_path,
         "----------------------------------------------------------------------------",
         "Number of Japanese characters: ", stats.char_count,
         "Number of kanji characters: ", stats.kanji_count,
-        "Number of unique kanji: ", stats.unique_kanji_count,
-        "Number of unique kanji appearing only once: ", stats.kanji_count_single_occurrence, analyzer::get_fancy_percentage(stats.unique_kanji_count, stats.kanji_count_single_occurrence),
+        "Number of unique kanji: ", unique_kanji_count,
+        "Number of unique kanji appearing only once: ", kanji_count_single_occurrence, analyzer::get_fancy_percentage(unique_kanji_count, kanji_count_single_occurrence),
         "Number of words in total: ", stats.word_count,
-        "Number of unique words: ", stats.unique_word_count, analyzer::get_fancy_percentage(stats.word_count, stats.unique_word_count),
-        "Number of words appearing only once: ", stats.word_count_single_occurrence, analyzer::get_fancy_percentage(stats.unique_word_count, stats.word_count_single_occurrence),
+        "Number of unique words: ", unique_word_count, analyzer::get_fancy_percentage(stats.word_count, unique_word_count),
+        "Number of words appearing only once: ", word_count_single_occurrence, analyzer::get_fancy_percentage(unique_word_count, word_count_single_occurrence),
         format_specific_stats,
     );
 
@@ -95,8 +93,7 @@ fn main() {
     std::io::Write::write_all(&mut stats_file, formatted_stats.as_bytes())
         .expect("Failed to write stats file");
 
-    let word_occurrence_list_formatted = stats
-        .word_occurrence_list_sorted
+    let word_occurrence_list_formatted = analyzer::sort_occurrence_list(stats.word_occurrence_list)
         .into_iter()
         .fold(Vec::new(), |mut vec, x| {
             vec.push(x.0 + "\t" + &x.1.to_string());
@@ -157,16 +154,14 @@ fn get_stats(
     let characters_occurrence_list =
         analyzer::generate_occurrence_list(&characters.chars().collect());
 
-    let word_occurrence_list_sorted = analyzer::sort_occurrence_list(&word_occurrence_list);
-    let word_count_single_occurrence = analyzer::find_single_occurrences(&word_occurrence_list);
+    let words_single_occurrence = analyzer::find_single_occurrences(&word_occurrence_list);
 
     let characters_count_single_occurrence =
         analyzer::find_single_occurrences(&characters_occurrence_list);
-    let kanji_count_single_occurrence =
-        analyzer::filter_non_kanji(&characters_count_single_occurrence);
+    let kanji_single_occurrence = analyzer::filter_non_kanji(&characters_count_single_occurrence);
 
     let japanese_characters = analyzer::filter_non_japanese(&characters.chars().collect());
-    let kanji_characters = analyzer::filter_non_kanji(&characters.chars().collect());
+    let kanji_characters: Vec<char> = analyzer::filter_non_kanji(&characters.chars().collect());
     let mut unique_kanji_characters: Vec<char> = kanji_characters.clone();
     unique_kanji_characters.sort();
     unique_kanji_characters.dedup();
@@ -176,11 +171,11 @@ fn get_stats(
     return AnalysisStats {
         char_count: japanese_characters.len(),
         kanji_count: kanji_characters.len(),
-        unique_kanji_count: unique_kanji_characters.len(),
-        kanji_count_single_occurrence: kanji_count_single_occurrence.len(),
+        unique_kanji: HashSet::from_iter(unique_kanji_characters.iter().cloned()),
+        kanji_single_occurrence,
         word_count: filtered_morphemes.len(),
-        unique_word_count: word_occurrence_list_sorted.len(),
-        word_count_single_occurrence: word_count_single_occurrence.len(),
+        unique_words: HashSet::from_iter(word_occurrence_list.iter().map(|x| x.0.to_owned())),
+        words_single_occurrence,
         volume_count: json_dir_count,
         avg_volume_length: japanese_characters.len() / json_dir_count,
         page_count: json_file_count,
@@ -191,7 +186,7 @@ fn get_stats(
         box_count: box_length.length,
 
         word_list_raw: filtered_morphemes,
-        word_occurrence_list_sorted: word_occurrence_list_sorted,
+        word_occurrence_list: word_occurrence_list,
     };
 }
 
@@ -199,11 +194,11 @@ fn get_stats(
 struct AnalysisStats {
     char_count: usize,
     kanji_count: usize,
-    unique_kanji_count: usize,
-    kanji_count_single_occurrence: usize,
+    unique_kanji: HashSet<char>,
+    kanji_single_occurrence: HashSet<char>,
     word_count: usize,
-    unique_word_count: usize,
-    word_count_single_occurrence: usize,
+    unique_words: HashSet<String>,
+    words_single_occurrence: HashSet<String>,
     volume_count: usize,
     avg_volume_length: usize,
     page_count: usize,
@@ -214,5 +209,59 @@ struct AnalysisStats {
     box_count: usize,
 
     word_list_raw: Vec<String>,
-    word_occurrence_list_sorted: Vec<(String, i32)>,
+    word_occurrence_list: HashMap<String, i32>,
+}
+
+trait Combine {
+    fn combine(&mut self, stats2: AnalysisStats);
+}
+
+impl Combine for AnalysisStats {
+    fn combine(&mut self, stats2: AnalysisStats) {
+        *self = AnalysisStats {
+            char_count: self.char_count + stats2.char_count,
+            kanji_count: self.kanji_count + stats2.kanji_count,
+            unique_kanji: self
+                .unique_kanji
+                .union(&stats2.unique_kanji)
+                .map(|x| x.to_owned())
+                .collect(),
+            kanji_single_occurrence: self
+                .kanji_single_occurrence
+                .symmetric_difference(&stats2.kanji_single_occurrence)
+                .map(|x| x.to_owned())
+                .collect(),
+            word_count: self.word_count + stats2.word_count,
+            unique_words: self
+                .unique_words
+                .union(&stats2.unique_words)
+                .map(|x| x.to_owned())
+                .collect(),
+            words_single_occurrence: self
+                .words_single_occurrence
+                .symmetric_difference(&stats2.words_single_occurrence)
+                .map(|x| x.to_owned())
+                .collect(),
+            volume_count: self.volume_count + stats2.volume_count,
+            avg_volume_length: self.volume_count + stats2.volume_count,
+            page_count: self.page_count + stats2.page_count,
+            avg_page_length: self.avg_page_length + stats2.avg_page_length,
+            avg_box_length: (self.avg_box_length * self.box_count
+                + stats2.avg_box_length * stats2.box_count)
+                / (self.box_count + stats2.box_count),
+            shortest_box_length: usize::min(self.shortest_box_length, stats2.shortest_box_length),
+            longest_box_length: usize::max(self.longest_box_length, stats2.longest_box_length),
+            box_count: self.box_count + stats2.box_count,
+            word_list_raw: self.word_list_raw.iter().chain(&stats2.word_list_raw).cloned().collect(),
+            word_occurrence_list: self.word_occurrence_list.iter().fold(
+                stats2.word_occurrence_list,
+                |mut hashmap, x| {
+                    if let Some(mut_map_ref) = hashmap.get_mut(x.0.as_str()) {
+                        *mut_map_ref += x.1;
+                    }
+                    hashmap
+                },
+            ),
+        };
+    }
 }
