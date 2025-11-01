@@ -55,6 +55,11 @@ fn main() {
         for lines in lines_groupings {
             let morpheme_surfaces = run_tokenization(&lines, &tokenizer);
             let new_stats = get_stats(lines, morpheme_surfaces, file_count, dir_count);
+            std::io::Write::write_all(
+                &mut word_list_raw_file,
+                (new_stats.word_list_raw.join("\n") + "\n").as_bytes(),
+            )
+            .expect("Failed to write word list raw file");
             stats.combine(new_stats);
         }
     }
@@ -142,14 +147,6 @@ fn main() {
         word_occurrence_list_formatted.as_bytes(),
     )
     .expect("Failed to write word list file");
-
-    let mut word_list_raw_file =
-        std::fs::File::create(&"word_list_raw.csv").expect("Failed to create word list raw file");
-    std::io::Write::write_all(
-        &mut word_list_raw_file,
-        stats.word_list_raw.join("\n").as_bytes(),
-    )
-    .expect("Failed to write word list raw file");
 }
 
 fn run_tokenization(
@@ -295,12 +292,7 @@ impl AnalysisStats {
             ),
             longest_box_length: usize::max(self.longest_box_length, stats2.longest_box_length),
             box_count: self.box_count + stats2.box_count,
-            word_list_raw: self
-                .word_list_raw
-                .iter()
-                .chain(&stats2.word_list_raw)
-                .cloned()
-                .collect(),
+            word_list_raw: vec![],
             kanji_occurrence_list: analyzer::merge_hashmap(
                 stats2.kanji_occurrence_list,
                 &self.kanji_occurrence_list,
