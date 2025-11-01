@@ -20,9 +20,10 @@ pub fn parse_minimal_synthetic_json() {
     //tokenize text
     let dict: sudachi::dic::dictionary::JapaneseDictionary =
         crate::dict_handler::make_sudachi_dict().expect("Failed to load tokenizer dictionary");
+    let tokenizer = sudachi::analysis::stateless_tokenizer::StatelessTokenizer::new(&dict);
     let mut tokenized_data = vec![];
     if let Some(lines) = maybe_lines {
-        tokenized_data = crate::run_tokenization(&lines, &dict);
+        tokenized_data = crate::run_tokenization(&lines, &tokenizer);
     }
     let expected_tokenized_data = vec![
         "医薬品".to_owned(),
@@ -62,9 +63,10 @@ pub fn parse_minimal_synthetic_any() {
     //tokenize text
     let dict: sudachi::dic::dictionary::JapaneseDictionary =
         crate::dict_handler::make_sudachi_dict().expect("Failed to load tokenizer dictionary");
+    let tokenizer = sudachi::analysis::stateless_tokenizer::StatelessTokenizer::new(&dict);
     let mut tokenized_data = vec![];
     if let Some(lines) = maybe_lines {
-        tokenized_data = crate::run_tokenization(&lines, &dict);
+        tokenized_data = crate::run_tokenization(&lines, &tokenizer);
     }
     let expected_tokenized_data = vec![
         "医薬品".to_owned(),
