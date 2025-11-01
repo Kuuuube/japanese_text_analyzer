@@ -59,14 +59,14 @@ pub fn get_avg_len(lines: Vec<String>) -> Option<BoxLength> {
     }
     lens.sort();
     return Some(BoxLength {
-        average: lens.iter().sum::<usize>() / parent_len,
+        average: usize::checked_div(lens.iter().sum::<usize>(), parent_len).unwrap_or_default(),
         shortest: *lens.first()?,
         longest: *lens.last()?,
         length: lines.len(),
     });
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct BoxLength {
     pub average: usize,
     pub shortest: usize,
@@ -186,4 +186,14 @@ fn check_if_kanji(codepoint: u32) -> bool {
 
 pub fn get_fancy_percentage(base: usize, percent: usize) -> String {
     return format!("{:.2}%", percent as f64 / base as f64 * 100.0);
+}
+
+pub fn bounded_min<T: PartialEq + PartialOrd>(val1: T, val2: T, min: T) -> T {
+    if val1 < min || val2 < min {
+        return min;
+    }
+    if val1 < val2 {
+        return val1;
+    }
+    return val2;
 }
