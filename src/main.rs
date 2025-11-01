@@ -44,15 +44,14 @@ fn main() {
     println!("Processing files, running tokenizer, and analyzing results");
     let start_time = std::time::Instant::now();
     let mut stats: AnalysisStats = Default::default();
-    for file in files {
-        let maybe_lines = match parsed_args.analysis_type {
-            AnalysisType::MokuroJson => file_handler::get_json_file_data(file),
-            AnalysisType::Mokuro => file_handler::get_mokuro_file_data(file),
-            AnalysisType::Any => file_handler::get_plain_file_data(file),
+    for file_path in files {
+        let lines_groupings = match parsed_args.analysis_type {
+            AnalysisType::MokuroJson => file_handler::get_json_file_data(file_path),
+            AnalysisType::Mokuro => file_handler::get_mokuro_file_data(file_path),
+            AnalysisType::Any => file_handler::get_plain_file_data(file_path),
         };
-        if let Some(lines) = maybe_lines
-            && lines.len() > 0
-        {
+
+        for lines in lines_groupings {
             let morpheme_surfaces = run_tokenization(&lines, &tokenizer);
             let new_stats = get_stats(lines, morpheme_surfaces, file_count, dir_count);
             stats.combine(new_stats);
