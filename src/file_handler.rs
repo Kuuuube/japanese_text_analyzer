@@ -23,7 +23,7 @@ pub fn get_files(directory: &str, extension: &str) -> Vec<std::path::PathBuf> {
     return json_files;
 }
 
-pub fn get_json_file_data(filepath: PathBuf) -> Vec<Vec<String>> {
+pub fn get_json_file_data(filepath: PathBuf) -> Vec<String> {
     let mut lines: Vec<String> = Default::default();
     let json_data = match std::fs::read_to_string(&filepath) {
         Ok(ok) => ok,
@@ -44,10 +44,10 @@ pub fn get_json_file_data(filepath: PathBuf) -> Vec<Vec<String>> {
         }
         Err(_) => {}
     }
-    return vec![lines];
+    return lines;
 }
 
-pub fn get_mokuro_file_data(filepath: PathBuf) -> Vec<Vec<String>> {
+pub fn get_mokuro_file_data(filepath: PathBuf) -> Vec<String> {
     let mut lines: Vec<String> = Default::default();
     let json_data = match std::fs::read_to_string(&filepath) {
         Ok(ok) => ok,
@@ -70,33 +70,7 @@ pub fn get_mokuro_file_data(filepath: PathBuf) -> Vec<Vec<String>> {
         }
         Err(_) => {}
     }
-    return vec![lines];
-}
-
-pub fn get_plain_file_data(filepath: PathBuf) -> Vec<Vec<String>> {
-    let mut lines: Vec<String> = Default::default();
-    let txt_strings: Vec<String> = match std::fs::read_to_string(&filepath) {
-        Ok(ok) => ok.split("\n").map(|x| x.to_owned()).collect(),
-        Err(err) => {
-            let filepath_str = filepath.to_str().unwrap_or("failed to display filepath");
-            println!("Failed to read file `{}`\nError: `{}`", filepath_str, err);
-            return vec![];
-        }
-    };
-    for txt_string in txt_strings {
-        let filtered_txt_strings = crate::analyzer::filter_duplicate_ascii(txt_string);
-        for filtered_txt_string in filtered_txt_strings {
-            if filtered_txt_string.len() > SUDACHI_MAX_TOKENIZER_LENGTH {
-                lines.append(&mut chunk_utf8_string(
-                    filtered_txt_string,
-                    SUDACHI_MAX_TOKENIZER_LENGTH,
-                ));
-            } else {
-                lines.push(filtered_txt_string);
-            }
-        }
-    }
-    return vec![lines];
+    return lines;
 }
 
 fn chunk_utf8_string(input_string: String, chunk_size: usize) -> Vec<String> {

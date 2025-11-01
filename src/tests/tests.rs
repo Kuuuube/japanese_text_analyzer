@@ -31,18 +31,16 @@ pub fn parse_minimal_synthetic_json() {
     dbg!("{:?}", &json_files);
     assert!(json_files.len() == 1);
 
-    let lines_groupings =
+    let lines =
         crate::file_handler::get_json_file_data(json_files.get(0).unwrap().to_path_buf());
-    assert!(lines_groupings == EXPECTED_LINES);
+    assert!(vec![lines.clone()] == EXPECTED_LINES);
 
     //tokenize text
     let dict: sudachi::dic::dictionary::JapaneseDictionary =
         crate::dict_handler::make_sudachi_dict().expect("Failed to load tokenizer dictionary");
     let tokenizer = sudachi::analysis::stateless_tokenizer::StatelessTokenizer::new(&dict);
     let mut tokenized_data = vec![];
-    for lines in lines_groupings {
-        tokenized_data.append(&mut crate::run_tokenization(&lines, &tokenizer));
-    }
+    tokenized_data.append(&mut crate::run_tokenization(&lines, &tokenizer));
     assert!(tokenized_data == EXPECTED_TOKENIZED_DATA);
 }
 
@@ -54,10 +52,16 @@ pub fn parse_minimal_synthetic_any() {
     assert!(any_files.len() == 1);
 
     let lines_groupings =
-        crate::file_handler::get_plain_file_data(any_files.get(0).unwrap().to_path_buf());
-    assert!(lines_groupings == EXPECTED_LINES);
+        crate::file_handler::BufferedPlainLineReader::new(&any_files.get(0).unwrap().to_path_buf()).unwrap();
+    let mut all_lines = vec![];
+    for lines in lines_groupings {
+        all_lines.push(lines);
+    }
+    assert!(all_lines == EXPECTED_LINES);
 
     //tokenize text
+    let lines_groupings =
+        crate::file_handler::BufferedPlainLineReader::new(&any_files.get(0).unwrap().to_path_buf()).unwrap();
     let dict: sudachi::dic::dictionary::JapaneseDictionary =
         crate::dict_handler::make_sudachi_dict().expect("Failed to load tokenizer dictionary");
     let tokenizer = sudachi::analysis::stateless_tokenizer::StatelessTokenizer::new(&dict);
@@ -65,5 +69,6 @@ pub fn parse_minimal_synthetic_any() {
     for lines in lines_groupings {
         tokenized_data.append(&mut crate::run_tokenization(&lines, &tokenizer));
     }
+    dbg!(&tokenized_data);
     assert!(tokenized_data == EXPECTED_TOKENIZED_DATA);
 }

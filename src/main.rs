@@ -48,22 +48,44 @@ fn main() {
     let mut word_list_raw_file =
         std::fs::File::create(&"word_list_raw.csv").expect("Failed to create word list raw file");
     for file_path in files {
-        let lines_groupings = match parsed_args.analysis_type {
-            AnalysisType::MokuroJson => file_handler::get_json_file_data(file_path),
-            AnalysisType::Mokuro => file_handler::get_mokuro_file_data(file_path),
-            AnalysisType::Any => file_handler::get_plain_file_data(file_path),
+        match parsed_args.analysis_type {
+            AnalysisType::MokuroJson => {
+                let lines = file_handler::get_json_file_data(file_path);
+                let morpheme_surfaces = run_tokenization(&lines, &tokenizer);
+                let new_stats = get_stats(lines, morpheme_surfaces, file_count, dir_count);
+                std::io::Write::write_all(
+                    &mut word_list_raw_file,
+                    (new_stats.word_list_raw.join("\n") + "\n").as_bytes(),
+                )
+                .expect("Failed to write word list raw file");
+                stats.combine(new_stats);
+            },
+            AnalysisType::Mokuro => {
+                let lines = file_handler::get_mokuro_file_data(file_path);
+                let morpheme_surfaces = run_tokenization(&lines, &tokenizer);
+                let new_stats = get_stats(lines, morpheme_surfaces, file_count, dir_count);
+                std::io::Write::write_all(
+                    &mut word_list_raw_file,
+                    (new_stats.word_list_raw.join("\n") + "\n").as_bytes(),
+                )
+                .expect("Failed to write word list raw file");
+                stats.combine(new_stats);
+            },
+            AnalysisType::Any => {
+                if let Ok(buffered_plain_line_reader) = file_handler::BufferedPlainLineReader::new(&file_path) {
+                    for lines in buffered_plain_line_reader {
+                        let morpheme_surfaces = run_tokenization(&lines, &tokenizer);
+                        let new_stats = get_stats(lines, morpheme_surfaces, file_count, dir_count);
+                        std::io::Write::write_all(
+                            &mut word_list_raw_file,
+                            (new_stats.word_list_raw.join("\n") + "\n").as_bytes(),
+                        )
+                        .expect("Failed to write word list raw file");
+                        stats.combine(new_stats);
+                    }
+                }
+            },
         };
-
-        for lines in lines_groupings {
-            let morpheme_surfaces = run_tokenization(&lines, &tokenizer);
-            let new_stats = get_stats(lines, morpheme_surfaces, file_count, dir_count);
-            std::io::Write::write_all(
-                &mut word_list_raw_file,
-                (new_stats.word_list_raw.join("\n") + "\n").as_bytes(),
-            )
-            .expect("Failed to write word list raw file");
-            stats.combine(new_stats);
-        }
     }
     println!(
         "Tokenizer and analysis finished ({}ms)",
