@@ -88,8 +88,8 @@ fn main() {
 
     let unique_word_count = stats.unique_words.len();
     let unique_kanji_count = stats.unique_kanji.len();
-    let word_count_single_occurrence = stats.words_single_occurrence.len();
-    let kanji_count_single_occurrence = stats.kanji_single_occurrence.len();
+    let word_count_single_occurrence = analyzer::find_single_occurrences(&stats.word_occurrence_list).len();
+    let kanji_count_single_occurrence = analyzer::find_single_occurrences(&stats.kanji_occurrence_list).len();
 
     let formatted_stats = format!(
         "{}\n{}\n{}{}\n{}{}\n{}{}\n{}{} ({} of unique kanji)\n{}{}\n{}{} ({} of all words)\n{}{} ({} of unique words)\n{}",
@@ -180,17 +180,10 @@ fn get_stats(
     let filtered_morphemes = analyzer::filter_blacklisted(&morpheme_surfaces);
 
     let word_occurrence_list = analyzer::generate_occurrence_list(&filtered_morphemes);
-    let characters_occurrence_list =
-        analyzer::generate_occurrence_list(&characters.chars().collect());
-
-    let words_single_occurrence = analyzer::find_single_occurrences(&word_occurrence_list);
-
-    let characters_count_single_occurrence =
-        analyzer::find_single_occurrences(&characters_occurrence_list);
-    let kanji_single_occurrence = analyzer::filter_non_kanji(&characters_count_single_occurrence);
 
     let japanese_characters = analyzer::filter_non_japanese(&characters.chars().collect());
     let kanji_characters: Vec<char> = analyzer::filter_non_kanji(&characters.chars().collect());
+    let kanji_occurrence_list = analyzer::generate_occurrence_list(&kanji_characters);
     let mut unique_kanji_characters: Vec<char> = kanji_characters.clone();
     unique_kanji_characters.sort();
     unique_kanji_characters.dedup();
@@ -201,10 +194,8 @@ fn get_stats(
         char_count: japanese_characters.len(),
         kanji_count: kanji_characters.len(),
         unique_kanji: HashSet::from_iter(unique_kanji_characters.iter().cloned()),
-        kanji_single_occurrence,
         word_count: filtered_morphemes.len(),
         unique_words: HashSet::from_iter(word_occurrence_list.iter().map(|x| x.0.to_owned())),
-        words_single_occurrence,
         volume_count: json_dir_count,
         avg_volume_length: japanese_characters.len() as f64 / json_dir_count as f64,
         page_count: json_file_count,
@@ -215,6 +206,7 @@ fn get_stats(
         box_count: box_length.length,
 
         word_list_raw: filtered_morphemes,
+        kanji_occurrence_list: kanji_occurrence_list,
         word_occurrence_list: word_occurrence_list,
     };
 }
@@ -224,10 +216,8 @@ struct AnalysisStats {
     char_count: usize,
     kanji_count: usize,
     unique_kanji: HashSet<char>,
-    kanji_single_occurrence: HashSet<char>,
     word_count: usize,
     unique_words: HashSet<String>,
-    words_single_occurrence: HashSet<String>,
     volume_count: usize,
     avg_volume_length: f64,
     page_count: usize,
@@ -238,6 +228,7 @@ struct AnalysisStats {
     box_count: usize,
 
     word_list_raw: Vec<String>,
+    kanji_occurrence_list: HashMap<char, i32>,
     word_occurrence_list: HashMap<String, i32>,
 }
 
@@ -247,10 +238,8 @@ impl Default for AnalysisStats {
             char_count: Default::default(),
             kanji_count: Default::default(),
             unique_kanji: Default::default(),
-            kanji_single_occurrence: Default::default(),
             word_count: Default::default(),
             unique_words: Default::default(),
-            words_single_occurrence: Default::default(),
             volume_count: Default::default(),
             avg_volume_length: Default::default(),
             page_count: Default::default(),
@@ -260,6 +249,7 @@ impl Default for AnalysisStats {
             longest_box_length: Default::default(),
             box_count: Default::default(),
             word_list_raw: Default::default(),
+            kanji_occurrence_list: Default::default(),
             word_occurrence_list: Default::default(),
         }
     }
@@ -275,20 +265,10 @@ impl AnalysisStats {
                 .union(&stats2.unique_kanji)
                 .map(|x| x.to_owned())
                 .collect(),
-            kanji_single_occurrence: self
-                .kanji_single_occurrence
-                .symmetric_difference(&stats2.kanji_single_occurrence)
-                .map(|x| x.to_owned())
-                .collect(),
             word_count: self.word_count + stats2.word_count,
             unique_words: self
                 .unique_words
                 .union(&stats2.unique_words)
-                .map(|x| x.to_owned())
-                .collect(),
-            words_single_occurrence: self
-                .words_single_occurrence
-                .symmetric_difference(&stats2.words_single_occurrence)
                 .map(|x| x.to_owned())
                 .collect(),
             volume_count: stats2.volume_count,
@@ -310,15 +290,8 @@ impl AnalysisStats {
                 .chain(&stats2.word_list_raw)
                 .cloned()
                 .collect(),
-            word_occurrence_list: self.word_occurrence_list.iter().fold(
-                stats2.word_occurrence_list,
-                |mut hashmap, x| {
-                    if let Some(mut_map_ref) = hashmap.get_mut(x.0.as_str()) {
-                        *mut_map_ref += x.1;
-                    }
-                    hashmap
-                },
-            ),
+            kanji_occurrence_list: analyzer::merge_hashmap(stats2.kanji_occurrence_list, &self.kanji_occurrence_list),
+            word_occurrence_list: analyzer::merge_hashmap(stats2.word_occurrence_list, &self.word_occurrence_list),
         };
     }
 }

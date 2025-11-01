@@ -197,3 +197,16 @@ pub fn bounded_min<T: PartialEq + PartialOrd>(val1: T, val2: T, min: T) -> T {
     }
     return val2;
 }
+
+pub fn merge_hashmap<T: ToOwned<Owned = T> + Eq + Hash>(
+    mut hashmap1: HashMap<T, i32>, hashmap2: &HashMap<T, i32>,
+) -> HashMap<T, i32> {
+    for (k, v) in hashmap2 {
+        if let Some(mut_value) = hashmap1.get_mut(k) {
+            *mut_value += v;
+        } else {
+            hashmap1.insert(k.to_owned(), *v);
+        }
+    }
+    return hashmap1;
+}
