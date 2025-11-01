@@ -88,8 +88,10 @@ fn main() {
 
     let unique_word_count = stats.unique_words.len();
     let unique_kanji_count = stats.unique_kanji.len();
-    let word_count_single_occurrence = analyzer::find_single_occurrences(&stats.word_occurrence_list).len();
-    let kanji_count_single_occurrence = analyzer::find_single_occurrences(&stats.kanji_occurrence_list).len();
+    let word_count_single_occurrence =
+        analyzer::find_single_occurrences(&stats.word_occurrence_list).len();
+    let kanji_count_single_occurrence =
+        analyzer::find_single_occurrences(&stats.kanji_occurrence_list).len();
 
     let formatted_stats = format!(
         "{}\n{}\n{}{}\n{}{}\n{}{}\n{}{} ({} of unique kanji)\n{}{}\n{}{} ({} of all words)\n{}{} ({} of unique words)\n{}",
@@ -281,7 +283,11 @@ impl AnalysisStats {
                     / (self.box_count + stats2.box_count) as f64,
                 0.0, // cure potential NaN corruption by overriding NaNs with 0.0
             ),
-            shortest_box_length: analyzer::bounded_min(self.shortest_box_length, stats2.shortest_box_length, 1),
+            shortest_box_length: analyzer::bounded_min(
+                self.shortest_box_length,
+                stats2.shortest_box_length,
+                1,
+            ),
             longest_box_length: usize::max(self.longest_box_length, stats2.longest_box_length),
             box_count: self.box_count + stats2.box_count,
             word_list_raw: self
@@ -290,8 +296,14 @@ impl AnalysisStats {
                 .chain(&stats2.word_list_raw)
                 .cloned()
                 .collect(),
-            kanji_occurrence_list: analyzer::merge_hashmap(stats2.kanji_occurrence_list, &self.kanji_occurrence_list),
-            word_occurrence_list: analyzer::merge_hashmap(stats2.word_occurrence_list, &self.word_occurrence_list),
+            kanji_occurrence_list: analyzer::merge_hashmap(
+                stats2.kanji_occurrence_list,
+                &self.kanji_occurrence_list,
+            ),
+            word_occurrence_list: analyzer::merge_hashmap(
+                stats2.word_occurrence_list,
+                &self.word_occurrence_list,
+            ),
         };
     }
 }
