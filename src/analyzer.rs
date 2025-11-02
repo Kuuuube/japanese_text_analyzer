@@ -42,12 +42,9 @@ pub fn find_single_occurrences<T: ToOwned<Owned = T> + Eq + Hash>(
 ) -> HashSet<T> {
     return occurrence_list
         .iter()
-        .fold(HashSet::new(), |mut map: HashSet<T>, x: (&T, &i32)| {
-            if *x.1 == 1 {
-                map.insert(x.0.to_owned());
-            }
-            map
-        });
+        .filter(|x| *x.1 == 1)
+        .map(|x| x.0.to_owned())
+        .collect();
 }
 
 pub fn get_avg_len(lines: Vec<String>) -> Option<BoxLength> {
