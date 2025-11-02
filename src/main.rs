@@ -1,7 +1,4 @@
-use std::{
-    collections::{HashMap, HashSet},
-    sync::RwLock,
-};
+use std::collections::{HashMap, HashSet};
 
 use args_parser::AnalysisType;
 use sudachi::{
@@ -47,7 +44,7 @@ fn main() {
 
     println!("Processing files, running tokenizer, and analyzing results");
     let start_time = std::time::Instant::now();
-    let stats_rwlock = RwLock::new(AnalysisStats::default());
+    let mut stats = AnalysisStats::default();
     let mut word_list_raw_file =
         std::fs::File::create(&"word_list_raw.csv").expect("Failed to create word list raw file");
     for file_path in files {
@@ -61,12 +58,7 @@ fn main() {
                     (new_stats.word_list_raw.join("\n") + "\n").as_bytes(),
                 )
                 .expect("Failed to write word list raw file");
-                {
-                    let mut stats = stats_rwlock
-                        .write()
-                        .expect("Failed to lock stats for writing");
-                    stats.combine(new_stats);
-                }
+                stats.combine(new_stats);
             }
             AnalysisType::Mokuro => {
                 let lines = file_handler::get_mokuro_file_data(file_path);
@@ -77,12 +69,7 @@ fn main() {
                     (new_stats.word_list_raw.join("\n") + "\n").as_bytes(),
                 )
                 .expect("Failed to write word list raw file");
-                {
-                    let mut stats = stats_rwlock
-                        .write()
-                        .expect("Failed to lock stats for writing");
-                    stats.combine(new_stats);
-                }
+                stats.combine(new_stats);
             }
             AnalysisType::Any => {
                 if let Ok(buffered_plain_line_reader) =
@@ -96,12 +83,7 @@ fn main() {
                             (new_stats.word_list_raw.join("\n") + "\n").as_bytes(),
                         )
                         .expect("Failed to write word list raw file");
-                        {
-                            let mut stats = stats_rwlock
-                                .write()
-                                .expect("Failed to lock stats for writing");
-                            stats.combine(new_stats);
-                        }
+                        stats.combine(new_stats);
                     }
                 }
             }
@@ -111,10 +93,6 @@ fn main() {
         "Tokenizer and analysis finished ({}ms)",
         start_time.elapsed().as_millis()
     );
-
-    let stats = stats_rwlock
-        .read()
-        .expect("Failed to lock stats for reading");
 
     let format_specific_stats = match parsed_args.analysis_type {
         AnalysisType::MokuroJson => format!(
