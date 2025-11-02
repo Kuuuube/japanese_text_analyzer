@@ -19,7 +19,7 @@ pub fn count_directories(filepaths: &Vec<PathBuf>) -> usize {
 
 pub fn generate_occurrence_list<T: ToOwned<Owned = T> + Eq + Hash>(
     morpheme_surfaces: &Vec<T>,
-) -> HashMap<T, i32> {
+) -> HashMap<T, u64> {
     return morpheme_surfaces
         .into_iter()
         .fold(HashMap::new(), |mut map, c| {
@@ -28,8 +28,8 @@ pub fn generate_occurrence_list<T: ToOwned<Owned = T> + Eq + Hash>(
         });
 }
 
-pub fn sort_occurrence_list(occurrence_list: HashMap<String, i32>) -> Vec<(String, i32)> {
-    let mut occurrence_list_sorted: Vec<(String, i32)> = occurrence_list
+pub fn sort_occurrence_list(occurrence_list: HashMap<String, u64>) -> Vec<(String, u64)> {
+    let mut occurrence_list_sorted: Vec<(String, u64)> = occurrence_list
         .iter()
         .map(|x| (x.0.to_owned(), x.1.to_owned()))
         .collect();
@@ -38,7 +38,7 @@ pub fn sort_occurrence_list(occurrence_list: HashMap<String, i32>) -> Vec<(Strin
 }
 
 pub fn find_single_occurrences<T: ToOwned<Owned = T> + Eq + Hash>(
-    occurrence_list: &HashMap<T, i32>,
+    occurrence_list: &HashMap<T, u64>,
 ) -> HashSet<T> {
     return occurrence_list
         .iter()
@@ -181,8 +181,8 @@ fn check_if_kanji(codepoint: u32) -> bool {
     return false;
 }
 
-pub fn get_fancy_percentage(base: usize, percent: usize) -> String {
-    return format!("{:.2}%", percent as f64 / base as f64 * 100.0);
+pub fn get_fancy_percentage(base: f64, percent: f64) -> String {
+    return format!("{:.2}%", percent / base * 100.0);
 }
 
 pub fn bounded_min<T: PartialEq + PartialOrd + Ord>(val1: T, val2: T, min: T) -> T {
@@ -193,9 +193,9 @@ pub fn bounded_min<T: PartialEq + PartialOrd + Ord>(val1: T, val2: T, min: T) ->
 }
 
 pub fn merge_hashmap<T: ToOwned<Owned = T> + Eq + Hash>(
-    mut hashmap1: HashMap<T, i32>,
-    hashmap2: &HashMap<T, i32>,
-) -> HashMap<T, i32> {
+    mut hashmap1: HashMap<T, u64>,
+    hashmap2: &HashMap<T, u64>,
+) -> HashMap<T, u64> {
     for (k, v) in hashmap2 {
         if let Some(mut_value) = hashmap1.get_mut(k) {
             *mut_value += v;

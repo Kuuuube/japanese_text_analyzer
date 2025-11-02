@@ -143,15 +143,15 @@ fn main() {
         unique_kanji_count,
         "Number of unique kanji appearing only once: ",
         kanji_count_single_occurrence,
-        analyzer::get_fancy_percentage(unique_kanji_count, kanji_count_single_occurrence),
+        analyzer::get_fancy_percentage(unique_kanji_count as f64, kanji_count_single_occurrence as f64),
         "Number of words in total: ",
         stats.word_count,
         "Number of unique words: ",
         unique_word_count,
-        analyzer::get_fancy_percentage(stats.word_count, unique_word_count),
+        analyzer::get_fancy_percentage(stats.word_count as f64, unique_word_count as f64),
         "Number of words appearing only once: ",
         word_count_single_occurrence,
-        analyzer::get_fancy_percentage(unique_word_count, word_count_single_occurrence),
+        analyzer::get_fancy_percentage(unique_word_count as f64, word_count_single_occurrence as f64),
         format_specific_stats,
     );
 
@@ -226,10 +226,10 @@ fn get_stats(
     let box_length = analyzer::get_avg_len(lines).unwrap_or_default();
 
     return AnalysisStats {
-        char_count: japanese_characters.len(),
-        kanji_count: kanji_characters.len(),
+        char_count: japanese_characters.len() as u64,
+        kanji_count: kanji_characters.len() as u64,
         unique_kanji: HashSet::from_iter(unique_kanji_characters.iter().cloned()),
-        word_count: filtered_morphemes.len(),
+        word_count: filtered_morphemes.len() as u64,
         unique_words: HashSet::from_iter(word_occurrence_list.iter().map(|x| x.0.to_owned())),
         volume_count: json_dir_count,
         avg_volume_length: japanese_characters.len() as f64 / json_dir_count as f64,
@@ -238,7 +238,7 @@ fn get_stats(
         avg_box_length: box_length.average as f64,
         shortest_box_length: box_length.shortest,
         longest_box_length: box_length.longest,
-        box_count: box_length.length,
+        box_count: box_length.length as u64,
 
         word_list_raw: filtered_morphemes,
         kanji_occurrence_list: kanji_occurrence_list,
@@ -248,10 +248,10 @@ fn get_stats(
 
 #[derive(Debug)]
 struct AnalysisStats {
-    char_count: usize,
-    kanji_count: usize,
+    char_count: u64,
+    kanji_count: u64,
     unique_kanji: HashSet<char>,
-    word_count: usize,
+    word_count: u64,
     unique_words: HashSet<String>,
     volume_count: usize,
     avg_volume_length: f64,
@@ -260,11 +260,11 @@ struct AnalysisStats {
     avg_box_length: f64,
     shortest_box_length: usize,
     longest_box_length: usize,
-    box_count: usize,
+    box_count: u64,
 
     word_list_raw: Vec<String>,
-    kanji_occurrence_list: HashMap<char, i32>,
-    word_occurrence_list: HashMap<String, i32>,
+    kanji_occurrence_list: HashMap<char, u64>,
+    word_occurrence_list: HashMap<String, u64>,
 }
 
 impl Default for AnalysisStats {
