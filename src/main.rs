@@ -15,6 +15,10 @@ mod utf8_bufreader;
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let parsed_args = args_parser::get_args(args);
+    if parsed_args.help {
+        println!(include_str!("help_text.txt"));
+        return;
+    }
 
     let (media_type, enumeration_name) = match parsed_args.analysis_type {
         AnalysisType::MokuroJson => ("manga volumes", "pages"),

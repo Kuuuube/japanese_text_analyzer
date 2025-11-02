@@ -1,0 +1,18 @@
+Japanese Text Analyzer:
+  Analysis tool for ocr files in Mokuro processed manga. Also supports miscellaneous files.
+
+Usage: japanese_text_analyzer [directory_or_file_path] [OPTIONS]...
+
+Options:
+  -h, --help                Display this help message and exit.
+  --mokurojson (Default)    Searches only for `.json` files in the specified path.
+                            The Mokuro _ocr json files must be present.
+  --mokuro                  Searches only for `.mokuro` files in the specified path.
+                            The Mokuro .mokuro files must be present.
+  --any                     Searches for all files in the specified path.
+  --any=EXTENSION           Searches for all files matching the file extension in the specified path.
+
+Examples:
+  japanese_text_analyzer ./mokuro_manga_path/
+  japanese_text_analyzer "./example path/" --any
+  japanese_text_analyzer "./example path/" --any=.html

@@ -10,6 +10,8 @@ japanese_text_analyzer directory_or_file_path OPTIONS
 
 ## Options
 
+- `-h` `--help`: Print a help message and exit.
+
 - `--mokurojson` (Default): Searches only for `.json` files in the specified path.
 
     Note: The Mokuro `_ocr` json files **must** be present.
