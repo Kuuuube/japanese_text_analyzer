@@ -143,7 +143,10 @@ fn main() {
         unique_kanji_count,
         "Number of unique kanji appearing only once: ",
         kanji_count_single_occurrence,
-        analyzer::get_fancy_percentage(unique_kanji_count as f64, kanji_count_single_occurrence as f64),
+        analyzer::get_fancy_percentage(
+            unique_kanji_count as f64,
+            kanji_count_single_occurrence as f64
+        ),
         "Number of words in total: ",
         stats.word_count,
         "Number of unique words: ",
@@ -151,7 +154,10 @@ fn main() {
         analyzer::get_fancy_percentage(stats.word_count as f64, unique_word_count as f64),
         "Number of words appearing only once: ",
         word_count_single_occurrence,
-        analyzer::get_fancy_percentage(unique_word_count as f64, word_count_single_occurrence as f64),
+        analyzer::get_fancy_percentage(
+            unique_word_count as f64,
+            word_count_single_occurrence as f64
+        ),
         format_specific_stats,
     );
 
@@ -178,6 +184,23 @@ fn main() {
         word_occurrence_list_formatted.as_bytes(),
     )
     .expect("Failed to write word list file");
+
+    let kanji_occurrence_list_formatted =
+        analyzer::sort_occurrence_list(stats.kanji_occurrence_list.clone())
+            .into_iter()
+            .fold(Vec::new(), |mut vec, x| {
+                vec.push(x.0 + "\t" + &x.1.to_string());
+                vec
+            })
+            .join("\n");
+
+    let mut kanji_list_file =
+        std::fs::File::create(&"kanji_list.csv").expect("Failed to create kanji list file");
+    std::io::Write::write_all(
+        &mut kanji_list_file,
+        kanji_occurrence_list_formatted.as_bytes(),
+    )
+    .expect("Failed to write kanji list file");
 }
 
 fn run_tokenization(

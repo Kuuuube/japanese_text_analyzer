@@ -28,10 +28,10 @@ pub fn generate_occurrence_list<T: ToOwned<Owned = T> + Eq + Hash>(
         });
 }
 
-pub fn sort_occurrence_list(occurrence_list: HashMap<String, u64>) -> Vec<(String, u64)> {
+pub fn sort_occurrence_list<T: ToString>(occurrence_list: HashMap<T, u64>) -> Vec<(String, u64)> {
     let mut occurrence_list_sorted: Vec<(String, u64)> = occurrence_list
         .iter()
-        .map(|x| (x.0.to_owned(), x.1.to_owned()))
+        .map(|x| (x.0.to_string(), x.1.to_owned()))
         .collect();
     occurrence_list_sorted.sort_by(|a, b| b.1.cmp(&a.1));
     return occurrence_list_sorted;

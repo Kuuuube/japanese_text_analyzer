@@ -79,6 +79,16 @@ Average textbox length in characters: 11 (shortest: 1) (longest: 254) (4302 tota
 ... (25198 more lines)
 ```
 
+`kanji_list_csv` (Deduped list of kanji along with the number of times they were found in the analyzed text)
+```
+前	320
+川	230
+私	208
+水	187
+清	186
+... (1077 more lines)
+```
+
 ## Building
 
 Linux:
