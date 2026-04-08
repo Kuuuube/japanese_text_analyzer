@@ -5,7 +5,7 @@ use std::{
 };
 
 use args_parser::AnalysisType;
-use rayon::iter::{ParallelBridge, ParallelIterator};
+use rayon::iter::{IntoParallelRefIterator, ParallelBridge, ParallelIterator};
 use sudachi::{
     analysis::stateless_tokenizer::StatelessTokenizer, dic::dictionary::JapaneseDictionary,
 };
@@ -73,8 +73,7 @@ fn main() {
         );
     };
 
-    // overhead of spawning a thread generally is not worth it for running over a lot of small files
-    for file_path in files {
+    files.par_iter().for_each(|file_path| {
         match parsed_args.analysis_type {
             AnalysisType::MokuroJson => {
                 let lines = file_handler::get_json_file_data(&file_path);
@@ -98,7 +97,7 @@ fn main() {
                 }
             }
         };
-    }
+    });
     println!(
         "Tokenizer and analysis finished ({}ms)",
         start_time.elapsed().as_millis()
