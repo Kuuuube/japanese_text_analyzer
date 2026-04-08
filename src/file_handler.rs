@@ -23,7 +23,7 @@ pub fn get_files(directory: &str, extension: &str) -> Vec<std::path::PathBuf> {
     return json_files;
 }
 
-pub fn get_json_file_data(filepath: PathBuf) -> Vec<String> {
+pub fn get_json_file_data(filepath: &PathBuf) -> Vec<String> {
     let mut lines: Vec<String> = Default::default();
     let json_data = match std::fs::read_to_string(&filepath) {
         Ok(ok) => ok,
@@ -47,7 +47,7 @@ pub fn get_json_file_data(filepath: PathBuf) -> Vec<String> {
     return lines;
 }
 
-pub fn get_mokuro_file_data(filepath: PathBuf) -> Vec<String> {
+pub fn get_mokuro_file_data(filepath: &PathBuf) -> Vec<String> {
     let mut lines: Vec<String> = Default::default();
     let json_data = match std::fs::read_to_string(&filepath) {
         Ok(ok) => ok,

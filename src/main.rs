@@ -75,11 +75,11 @@ fn main() {
     for file_path in files {
         match parsed_args.analysis_type {
             AnalysisType::MokuroJson => {
-                let lines = file_handler::get_json_file_data(file_path);
+                let lines = file_handler::get_json_file_data(&file_path);
                 process_closure(lines);
             }
             AnalysisType::Mokuro => {
-                let lines = file_handler::get_mokuro_file_data(file_path);
+                let lines = file_handler::get_mokuro_file_data(&file_path);
                 process_closure(lines);
             }
             AnalysisType::Any => {
