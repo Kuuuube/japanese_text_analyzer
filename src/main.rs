@@ -171,11 +171,9 @@ fn process_lines(
         .expect("Failed to write word list raw file");
     }
     {
-        println!("arriving at lock");
         stats
             .replace_with(|value| value.combine(new_stats))
             .unwrap();
-        println!("finished");
     }
 }
 
