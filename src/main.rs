@@ -122,70 +122,9 @@ fn main() {
         start_time.elapsed().as_millis()
     );
 
-    let stats = stats.read().expect("Failed to get stats reader");
+    let mut stats = stats.write().expect("Failed to get stats reader");
 
-    let format_specific_stats = match parsed_args.analysis_type {
-        AnalysisType::MokuroJson => format!(
-            "{}{:.0} ({} total volumes)\n{}{:.0} ({} total pages)\n{}{:.0} (shortest: {}) (longest: {}) ({} total textboxes)",
-            "Average volume length in characters: ",
-            stats.avg_volume_length,
-            stats.volume_count,
-            "Average page length in characters: ",
-            stats.avg_page_length,
-            stats.page_count,
-            "Average textbox length in characters: ",
-            stats.avg_box_length,
-            stats.shortest_box_length,
-            stats.longest_box_length,
-            stats.box_count
-        ),
-        AnalysisType::Any => "".to_string(),
-        AnalysisType::Mokuro => format!(
-            "{}{} (shortest: {}) (longest: {}) ({} total textboxes)",
-            "Average textbox length in characters: ",
-            stats.avg_box_length,
-            stats.shortest_box_length,
-            stats.longest_box_length,
-            stats.box_count
-        ),
-    };
-
-    let unique_word_count = stats.unique_words.len();
-    let unique_kanji_count = stats.unique_kanji.len();
-    let word_count_single_occurrence =
-        analyzer::find_single_occurrences(&stats.word_occurrence_list).len();
-    let kanji_count_single_occurrence =
-        analyzer::find_single_occurrences(&stats.kanji_occurrence_list).len();
-
-    let formatted_stats = format!(
-        "{}\n{}\n{}{}\n{}{}\n{}{}\n{}{} ({} of unique kanji)\n{}{}\n{}{} ({} of all words)\n{}{} ({} of unique words)\n{}",
-        parsed_args.start_path,
-        "----------------------------------------------------------------------------",
-        "Number of Japanese characters: ",
-        stats.char_count,
-        "Number of kanji characters: ",
-        stats.kanji_count,
-        "Number of unique kanji: ",
-        unique_kanji_count,
-        "Number of unique kanji appearing only once: ",
-        kanji_count_single_occurrence,
-        analyzer::get_fancy_percentage(
-            unique_kanji_count as f64,
-            kanji_count_single_occurrence as f64
-        ),
-        "Number of words in total: ",
-        stats.word_count,
-        "Number of unique words: ",
-        unique_word_count,
-        analyzer::get_fancy_percentage(stats.word_count as f64, unique_word_count as f64),
-        "Number of words appearing only once: ",
-        word_count_single_occurrence,
-        analyzer::get_fancy_percentage(
-            unique_word_count as f64,
-            word_count_single_occurrence as f64
-        ),
-        format_specific_stats,
-    );
+    let formatted_stats = stats.format_fancy(parsed_args);
 
     println!("{}", formatted_stats);
 

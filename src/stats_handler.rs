@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::analyzer;
+use crate::{analyzer, args_parser::{AnalysisType, JapaneseTextAnalyzerArgs}};
 
 pub fn get_stats(
     lines: Vec<String>,
@@ -130,5 +130,72 @@ impl AnalysisStats {
                 &self.word_occurrence_list,
             ),
         };
+    }
+
+    pub fn format_fancy(&mut self, parsed_args: JapaneseTextAnalyzerArgs) -> String {
+        let format_specific_stats = match parsed_args.analysis_type {
+            AnalysisType::MokuroJson => format!(
+                "{}{:.0} ({} total volumes)\n{}{:.0} ({} total pages)\n{}{:.0} (shortest: {}) (longest: {}) ({} total textboxes)",
+                "Average volume length in characters: ",
+                self.avg_volume_length,
+                self.volume_count,
+                "Average page length in characters: ",
+                self.avg_page_length,
+                self.page_count,
+                "Average textbox length in characters: ",
+                self.avg_box_length,
+                self.shortest_box_length,
+                self.longest_box_length,
+                self.box_count
+            ),
+            AnalysisType::Any => "".to_string(),
+            AnalysisType::Mokuro => format!(
+                "{}{} (shortest: {}) (longest: {}) ({} total textboxes)",
+                "Average textbox length in characters: ",
+                self.avg_box_length,
+                self.shortest_box_length,
+                self.longest_box_length,
+                self.box_count
+            ),
+        };
+
+        let unique_word_count = self.unique_words.len();
+        let unique_kanji_count = self.unique_kanji.len();
+        let word_count_single_occurrence =
+            analyzer::find_single_occurrences(&self.word_occurrence_list).len();
+        let kanji_count_single_occurrence =
+            analyzer::find_single_occurrences(&self.kanji_occurrence_list).len();
+
+        let formatted_stats = format!(
+            "{}\n{}\n{}{}\n{}{}\n{}{}\n{}{} ({} of unique kanji)\n{}{}\n{}{} ({} of all words)\n{}{} ({} of unique words)\n{}",
+            parsed_args.start_path,
+            "----------------------------------------------------------------------------",
+            "Number of Japanese characters: ",
+            self.char_count,
+            "Number of kanji characters: ",
+            self.kanji_count,
+            "Number of unique kanji: ",
+            unique_kanji_count,
+            "Number of unique kanji appearing only once: ",
+            kanji_count_single_occurrence,
+            analyzer::get_fancy_percentage(
+                unique_kanji_count as f64,
+                kanji_count_single_occurrence as f64
+            ),
+            "Number of words in total: ",
+            self.word_count,
+            "Number of unique words: ",
+            unique_word_count,
+            analyzer::get_fancy_percentage(self.word_count as f64, unique_word_count as f64),
+            "Number of words appearing only once: ",
+            word_count_single_occurrence,
+            analyzer::get_fancy_percentage(
+                unique_word_count as f64,
+                word_count_single_occurrence as f64
+            ),
+            format_specific_stats,
+        );
+
+        return formatted_stats;
     }
 }
