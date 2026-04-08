@@ -159,18 +159,22 @@ fn process_lines(
 ) {
     let morpheme_surfaces = run_tokenization(&lines, &tokenizer);
     let new_stats = stats_handler::get_stats(lines, morpheme_surfaces, file_count, dir_count);
-    let word_list_raw_file_lock = &mut word_list_raw_file
-        .write()
-        .expect("Failed to get word_list_raw writer");
-    std::io::Write::write_all(
-        word_list_raw_file_lock.by_ref(),
-        (new_stats.word_list_raw.join("\n") + "\n").as_bytes(),
-    )
-    .expect("Failed to write word list raw file");
-    stats
-        .write()
-        .expect("Failed to get stats writer")
-        .combine(new_stats);
+    {
+        let word_list_raw_file_lock = &mut word_list_raw_file
+            .write()
+            .expect("Failed to get word_list_raw writer");
+        std::io::Write::write_all(
+            word_list_raw_file_lock.by_ref(),
+            (new_stats.word_list_raw.join("\n") + "\n").as_bytes(),
+        )
+        .expect("Failed to write word list raw file");
+    }
+    {
+        stats
+            .write()
+            .expect("Failed to get stats writer")
+            .combine(new_stats);
+    }
 }
 
 fn run_tokenization(
