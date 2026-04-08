@@ -13,9 +13,9 @@ mod analyzer;
 mod args_parser;
 mod dict_handler;
 mod file_handler;
+mod stats_handler;
 mod tests;
 mod utf8_bufreader;
-mod stats_handler;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -62,7 +62,8 @@ fn main() {
             AnalysisType::MokuroJson => {
                 let lines = file_handler::get_json_file_data(file_path);
                 let morpheme_surfaces = run_tokenization(&lines, &tokenizer);
-                let new_stats = stats_handler::get_stats(lines, morpheme_surfaces, file_count, dir_count);
+                let new_stats =
+                    stats_handler::get_stats(lines, morpheme_surfaces, file_count, dir_count);
                 let word_list_raw_file_lock = &mut word_list_raw_file
                     .write()
                     .expect("Failed to get word_list_raw writer");
@@ -79,7 +80,8 @@ fn main() {
             AnalysisType::Mokuro => {
                 let lines = file_handler::get_mokuro_file_data(file_path);
                 let morpheme_surfaces = run_tokenization(&lines, &tokenizer);
-                let new_stats = stats_handler::get_stats(lines, morpheme_surfaces, file_count, dir_count);
+                let new_stats =
+                    stats_handler::get_stats(lines, morpheme_surfaces, file_count, dir_count);
                 let word_list_raw_file_lock = &mut word_list_raw_file
                     .write()
                     .expect("Failed to get word_list_raw writer");
@@ -99,7 +101,12 @@ fn main() {
                 {
                     buffered_plain_line_reader.par_bridge().for_each(|lines| {
                         let morpheme_surfaces = run_tokenization(&lines, &tokenizer);
-                        let new_stats = stats_handler::get_stats(lines, morpheme_surfaces, file_count, dir_count);
+                        let new_stats = stats_handler::get_stats(
+                            lines,
+                            morpheme_surfaces,
+                            file_count,
+                            dir_count,
+                        );
                         let word_list_raw_file_lock = &mut word_list_raw_file
                             .write()
                             .expect("Failed to get word_list_raw writer");

@@ -1,6 +1,9 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::{analyzer, args_parser::{AnalysisType, JapaneseTextAnalyzerArgs}};
+use crate::{
+    analyzer,
+    args_parser::{AnalysisType, JapaneseTextAnalyzerArgs},
+};
 
 pub fn get_stats(
     lines: Vec<String>,
