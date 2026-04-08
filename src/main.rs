@@ -1,3 +1,5 @@
+#![feature(lock_value_accessors)]
+
 use std::{
     fs::File,
     io::Read,
@@ -170,10 +172,8 @@ fn process_lines(
         .expect("Failed to write word list raw file");
     }
     {
-        stats
-            .write()
-            .expect("Failed to get stats writer")
-            .combine(new_stats);
+        let stats_value = stats.replace(AnalysisStats::default()).unwrap();
+        let _ = stats.replace(stats_value.combine(new_stats));
     }
 }
 

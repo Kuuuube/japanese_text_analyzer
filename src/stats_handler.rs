@@ -91,21 +91,19 @@ impl Default for AnalysisStats {
 }
 
 impl AnalysisStats {
-    pub fn combine(&mut self, stats2: AnalysisStats) {
-        *self = AnalysisStats {
+    pub fn combine(self, stats2: AnalysisStats) -> AnalysisStats {
+        let mut new_stats1_unique_kanji = self.unique_kanji;
+        new_stats1_unique_kanji.extend(stats2.unique_kanji);
+
+        let mut new_stats1_unique_words = self.unique_words;
+        new_stats1_unique_words.extend(stats2.unique_words);
+
+        return AnalysisStats {
             char_count: self.char_count + stats2.char_count,
             kanji_count: self.kanji_count + stats2.kanji_count,
-            unique_kanji: self
-                .unique_kanji
-                .union(&stats2.unique_kanji)
-                .map(|x| x.to_owned())
-                .collect(),
+            unique_kanji: new_stats1_unique_kanji,
             word_count: self.word_count + stats2.word_count,
-            unique_words: self
-                .unique_words
-                .union(&stats2.unique_words)
-                .map(|x| x.to_owned())
-                .collect(),
+            unique_words: new_stats1_unique_words,
             volume_count: stats2.volume_count,
             avg_volume_length: self.avg_volume_length + stats2.avg_volume_length,
             page_count: stats2.page_count,
@@ -123,14 +121,14 @@ impl AnalysisStats {
             ),
             longest_box_length: usize::max(self.longest_box_length, stats2.longest_box_length),
             box_count: self.box_count + stats2.box_count,
-            word_list_raw: vec![],
+            word_list_raw: Vec::new(),
             kanji_occurrence_list: analyzer::merge_hashmap(
+                self.kanji_occurrence_list,
                 stats2.kanji_occurrence_list,
-                &self.kanji_occurrence_list,
             ),
             word_occurrence_list: analyzer::merge_hashmap(
+                self.word_occurrence_list,
                 stats2.word_occurrence_list,
-                &self.word_occurrence_list,
             ),
         };
     }
