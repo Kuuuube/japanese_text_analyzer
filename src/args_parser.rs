@@ -19,6 +19,9 @@ pub fn get_args(args: Vec<String>) -> JapaneseTextAnalyzerArgs {
                     japanese_text_analyzer_args.analysis_type = AnalysisType::Any;
                     japanese_text_analyzer_args.extension = split_arg.1.to_string();
                 }
+                "--singlethreaded" => {
+                    japanese_text_analyzer_args.singlethreaded = true;
+                }
                 "-h" | "--help" => {
                     japanese_text_analyzer_args.help = true;
                 }
@@ -36,6 +39,7 @@ pub struct JapaneseTextAnalyzerArgs {
     pub start_path: String,
     pub analysis_type: AnalysisType,
     pub extension: String,
+    pub singlethreaded: bool,
     pub help: bool,
 }
 
@@ -45,6 +49,7 @@ impl JapaneseTextAnalyzerArgs {
             start_path: "".to_string(),
             analysis_type: AnalysisType::MokuroJson,
             extension: ".json".to_string(),
+            singlethreaded: false,
             help: false,
         }
     }

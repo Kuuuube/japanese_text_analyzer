@@ -60,44 +60,39 @@ fn main() {
     let word_list_raw_file = Arc::new(RwLock::new(
         std::fs::File::create(&"word_list_raw.csv").expect("Failed to create word list raw file"),
     ));
+
+    let process_closure = |lines| {
+        process_lines(
+            lines,
+            &tokenizer,
+            word_list_raw_file.clone(),
+            stats.clone(),
+            file_count,
+            dir_count,
+        );
+    };
+
     for file_path in files {
         match parsed_args.analysis_type {
             AnalysisType::MokuroJson => {
                 let lines = file_handler::get_json_file_data(file_path);
-                process_lines(
-                    lines,
-                    &tokenizer,
-                    word_list_raw_file.clone(),
-                    stats.clone(),
-                    file_count,
-                    dir_count,
-                );
+                process_closure(lines);
             }
             AnalysisType::Mokuro => {
                 let lines = file_handler::get_mokuro_file_data(file_path);
-                process_lines(
-                    lines,
-                    &tokenizer,
-                    word_list_raw_file.clone(),
-                    stats.clone(),
-                    file_count,
-                    dir_count,
-                );
+                process_closure(lines);
             }
             AnalysisType::Any => {
                 if let Ok(buffered_plain_line_reader) =
                     file_handler::BufferedPlainLineReader::new(&file_path)
                 {
-                    buffered_plain_line_reader.par_bridge().for_each(|lines| {
-                        process_lines(
-                            lines,
-                            &tokenizer,
-                            word_list_raw_file.clone(),
-                            stats.clone(),
-                            file_count,
-                            dir_count,
-                        );
-                    });
+                    if parsed_args.singlethreaded {
+                        buffered_plain_line_reader.for_each(process_closure);
+                    } else {
+                        buffered_plain_line_reader
+                            .par_bridge()
+                            .for_each(process_closure);
+                    }
                 }
             }
         };

@@ -22,6 +22,8 @@ japanese_text_analyzer directory_or_file_path OPTIONS
 
 - `--any`: Searches for all files in the specified path.
 
+- `--singlethreaded`: Disable use of parallelism in analysis.
+
 - `--any=EXTENSION`: Searches for all files matching the file extension in the specified path.
 
 ## Examples

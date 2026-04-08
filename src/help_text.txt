@@ -11,6 +11,7 @@ Options:
                             The Mokuro .mokuro files must be present.
   --any                     Searches for all files in the specified path.
   --any=EXTENSION           Searches for all files matching the file extension in the specified path.
+  --singlethreaded          Disable use of parallelism in analysis.
 
 Examples:
   japanese_text_analyzer ./mokuro_manga_path/
