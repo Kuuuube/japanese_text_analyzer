@@ -73,7 +73,7 @@ fn main() {
         );
     };
 
-    files.par_iter().for_each(|file_path| {
+    let files_iter_closure = |file_path: &std::path::PathBuf| {
         match parsed_args.analysis_type {
             AnalysisType::MokuroJson => {
                 let lines = file_handler::get_json_file_data(&file_path);
@@ -97,7 +97,13 @@ fn main() {
                 }
             }
         };
-    });
+    };
+
+    if parsed_args.singlethreaded {
+        files.iter().for_each(files_iter_closure);
+    } else {
+        files.par_iter().for_each(files_iter_closure);
+    }
     println!(
         "Tokenizer and analysis finished ({}ms)",
         start_time.elapsed().as_millis()
