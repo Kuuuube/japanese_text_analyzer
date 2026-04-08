@@ -31,7 +31,7 @@ pub fn parse_minimal_synthetic_json() {
     dbg!("{:?}", &json_files);
     assert!(json_files.len() == 1);
 
-    let lines = crate::file_handler::get_json_file_data(json_files.get(0).unwrap().to_path_buf());
+    let lines = crate::file_handler::get_json_file_data(json_files.get(0).unwrap());
     assert!(vec![lines.clone()] == EXPECTED_LINES);
 
     //tokenize text
