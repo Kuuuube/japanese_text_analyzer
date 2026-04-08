@@ -1,7 +1,7 @@
 use std::{
     fs::File,
     io::Read,
-    sync::{Arc, Mutex, RwLock},
+    sync::{Arc, Mutex},
 };
 
 use args_parser::AnalysisType;
@@ -58,7 +58,7 @@ fn main() {
     println!("Processing files, running tokenizer, and analyzing results");
     let start_time = std::time::Instant::now();
     let stats = Arc::new(Mutex::new(stats_handler::AnalysisStats::default()));
-    let word_list_raw_file = Arc::new(RwLock::new(
+    let word_list_raw_file = Arc::new(Mutex::new(
         std::fs::File::create(&"word_list_raw.csv").expect("Failed to create word list raw file"),
     ));
 
@@ -153,7 +153,7 @@ fn main() {
 fn process_lines(
     lines: Vec<String>,
     tokenizer: &StatelessTokenizer<&JapaneseDictionary>,
-    word_list_raw_file: Arc<RwLock<File>>,
+    word_list_raw_file: Arc<Mutex<File>>,
     stats: Arc<Mutex<AnalysisStats>>,
     file_count: usize,
     dir_count: usize,
@@ -162,7 +162,7 @@ fn process_lines(
     let new_stats = stats_handler::get_stats(lines, morpheme_surfaces, file_count, dir_count);
     {
         let word_list_raw_file_lock = &mut word_list_raw_file
-            .write()
+            .lock()
             .expect("Failed to get word_list_raw writer");
         std::io::Write::write_all(
             word_list_raw_file_lock.by_ref(),
