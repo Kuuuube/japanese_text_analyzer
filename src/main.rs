@@ -1,9 +1,7 @@
-#![feature(lock_value_accessors)]
-
 use std::{
     fs::File,
     io::Read,
-    sync::{Arc, RwLock},
+    sync::{Arc, Mutex, RwLock},
 };
 
 use args_parser::AnalysisType;
@@ -12,7 +10,7 @@ use sudachi::{
     analysis::stateless_tokenizer::StatelessTokenizer, dic::dictionary::JapaneseDictionary,
 };
 
-use crate::stats_handler::AnalysisStats;
+use crate::{stats_handler::AnalysisStats, type_extensions::MutexExtensions};
 
 mod analyzer;
 mod args_parser;
@@ -20,6 +18,7 @@ mod dict_handler;
 mod file_handler;
 mod stats_handler;
 mod tests;
+mod type_extensions;
 mod utf8_bufreader;
 
 fn main() {
@@ -58,7 +57,7 @@ fn main() {
 
     println!("Processing files, running tokenizer, and analyzing results");
     let start_time = std::time::Instant::now();
-    let stats = Arc::new(RwLock::new(stats_handler::AnalysisStats::default()));
+    let stats = Arc::new(Mutex::new(stats_handler::AnalysisStats::default()));
     let word_list_raw_file = Arc::new(RwLock::new(
         std::fs::File::create(&"word_list_raw.csv").expect("Failed to create word list raw file"),
     ));
@@ -105,7 +104,7 @@ fn main() {
         start_time.elapsed().as_millis()
     );
 
-    let mut stats = stats.write().expect("Failed to get stats reader");
+    let mut stats = stats.lock().expect("Failed to get stats reader");
 
     let formatted_stats = stats.format_fancy(parsed_args);
 
@@ -155,7 +154,7 @@ fn process_lines(
     lines: Vec<String>,
     tokenizer: &StatelessTokenizer<&JapaneseDictionary>,
     word_list_raw_file: Arc<RwLock<File>>,
-    stats: Arc<RwLock<AnalysisStats>>,
+    stats: Arc<Mutex<AnalysisStats>>,
     file_count: usize,
     dir_count: usize,
 ) {
@@ -172,10 +171,11 @@ fn process_lines(
         .expect("Failed to write word list raw file");
     }
     {
-        let stats_value = stats
-            .replace(AnalysisStats::default())
-            .expect("Failed to replace rwlock value");
-        let _ = stats.replace(stats_value.combine(new_stats));
+        println!("arriving at lock");
+        stats
+            .replace_with(|value| value.combine(new_stats))
+            .unwrap();
+        println!("finished");
     }
 }
 
