@@ -50,7 +50,8 @@ pub fn find_single_occurrences<T: ToOwned<Owned = T> + Eq + Hash>(
 pub fn get_avg_len(lines: Vec<String>) -> Option<BoxLength> {
     let parent_len = lines.len();
     let mut lens = Vec::default();
-    let filtered_lines = filter_blacklisted(&lines);
+    let lines_length = lines.len();
+    let filtered_lines = filter_blacklisted(lines);
     for line in &filtered_lines {
         lens.push(line.chars().count())
     }
@@ -59,7 +60,7 @@ pub fn get_avg_len(lines: Vec<String>) -> Option<BoxLength> {
         average: usize::checked_div(lens.iter().sum::<usize>(), parent_len).unwrap_or_default(),
         shortest: *lens.first()?,
         longest: *lens.last()?,
-        length: lines.len(),
+        length: lines_length,
     });
 }
 
@@ -98,30 +99,27 @@ pub fn filter_duplicate_ascii(input_string: String) -> Vec<String> {
     return result_strings;
 }
 
-pub fn filter_non_japanese(chars: &Vec<char>) -> Vec<char> {
+pub fn filter_non_japanese(chars: Vec<char>) -> Vec<char> {
     return chars
-        .to_owned()
         .into_iter()
         .filter(|x| check_if_japanese(*x as u32))
         .collect();
 }
 
-pub fn filter_non_kanji<T>(chars: &T) -> T
+pub fn filter_non_kanji<T>(chars: T) -> T
 where
-    T: IntoIterator<Item = char> + std::iter::FromIterator<char> + Clone,
+    T: IntoIterator<Item = char> + std::iter::FromIterator<char>,
 {
     return chars
-        .to_owned()
         .into_iter()
         .filter(|x| check_if_kanji(*x as u32))
         .collect();
 }
 
-pub fn filter_blacklisted(words: &Vec<String>) -> Vec<String> {
+pub fn filter_blacklisted(words: Vec<String>) -> Vec<String> {
     return words
         .into_iter()
-        .filter(|x| filter_non_japanese(&x.chars().collect()).len() > 0)
-        .map(|v| v.to_string())
+        .filter(|x| filter_non_japanese(x.chars().collect()).len() > 0)
         .collect();
 }
 

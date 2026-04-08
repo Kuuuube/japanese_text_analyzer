@@ -12,12 +12,12 @@ pub fn get_stats(
     json_dir_count: usize,
 ) -> AnalysisStats {
     let characters = morpheme_surfaces.join("");
-    let filtered_morphemes = analyzer::filter_blacklisted(&morpheme_surfaces);
+    let filtered_morphemes = analyzer::filter_blacklisted(morpheme_surfaces);
 
     let word_occurrence_list = analyzer::generate_occurrence_list(&filtered_morphemes);
 
-    let japanese_characters = analyzer::filter_non_japanese(&characters.chars().collect());
-    let kanji_characters: Vec<char> = analyzer::filter_non_kanji(&characters.chars().collect());
+    let japanese_characters = analyzer::filter_non_japanese(characters.chars().collect());
+    let kanji_characters: Vec<char> = analyzer::filter_non_kanji(characters.chars().collect());
     let kanji_occurrence_list = analyzer::generate_occurrence_list(&kanji_characters);
     let mut unique_kanji_characters: Vec<char> = kanji_characters.clone();
     unique_kanji_characters.sort();
