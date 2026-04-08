@@ -1,14 +1,14 @@
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 pub fn count_directories(filepaths: &Vec<PathBuf>) -> usize {
     return filepaths
         .iter()
-        .fold(HashSet::new(), |mut map: HashSet<String>, x: &PathBuf| {
+        .fold(HashSet::new(), |mut map: HashSet<&Path>, x: &PathBuf| {
             match x.parent() {
                 Some(some) => {
-                    map.insert(some.to_string_lossy().to_string());
+                    map.insert(some);
                 }
                 None => {}
             }
