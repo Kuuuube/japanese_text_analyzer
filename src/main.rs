@@ -72,6 +72,7 @@ fn main() {
         );
     };
 
+    // overhead of spawning a thread generally is not worth it for running over a lot of small files
     for file_path in files {
         match parsed_args.analysis_type {
             AnalysisType::MokuroJson => {
