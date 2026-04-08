@@ -172,7 +172,9 @@ fn process_lines(
         .expect("Failed to write word list raw file");
     }
     {
-        let stats_value = stats.replace(AnalysisStats::default()).unwrap();
+        let stats_value = stats
+            .replace(AnalysisStats::default())
+            .expect("Failed to replace rwlock value");
         let _ = stats.replace(stats_value.combine(new_stats));
     }
 }
