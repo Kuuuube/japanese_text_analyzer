@@ -1,4 +1,5 @@
 use std::{
+    fs::File,
     io::Read,
     sync::{Arc, RwLock},
 };
@@ -8,6 +9,8 @@ use rayon::iter::{ParallelBridge, ParallelIterator};
 use sudachi::{
     analysis::stateless_tokenizer::StatelessTokenizer, dic::dictionary::JapaneseDictionary,
 };
+
+use crate::stats_handler::AnalysisStats;
 
 mod analyzer;
 mod args_parser;
@@ -61,64 +64,39 @@ fn main() {
         match parsed_args.analysis_type {
             AnalysisType::MokuroJson => {
                 let lines = file_handler::get_json_file_data(file_path);
-                let morpheme_surfaces = run_tokenization(&lines, &tokenizer);
-                let new_stats =
-                    stats_handler::get_stats(lines, morpheme_surfaces, file_count, dir_count);
-                let word_list_raw_file_lock = &mut word_list_raw_file
-                    .write()
-                    .expect("Failed to get word_list_raw writer");
-                std::io::Write::write_all(
-                    word_list_raw_file_lock.by_ref(),
-                    (new_stats.word_list_raw.join("\n") + "\n").as_bytes(),
-                )
-                .expect("Failed to write word list raw file");
-                stats
-                    .write()
-                    .expect("Failed to get stats writer")
-                    .combine(new_stats);
+                process_lines(
+                    lines,
+                    &tokenizer,
+                    word_list_raw_file.clone(),
+                    stats.clone(),
+                    file_count,
+                    dir_count,
+                );
             }
             AnalysisType::Mokuro => {
                 let lines = file_handler::get_mokuro_file_data(file_path);
-                let morpheme_surfaces = run_tokenization(&lines, &tokenizer);
-                let new_stats =
-                    stats_handler::get_stats(lines, morpheme_surfaces, file_count, dir_count);
-                let word_list_raw_file_lock = &mut word_list_raw_file
-                    .write()
-                    .expect("Failed to get word_list_raw writer");
-                std::io::Write::write_all(
-                    word_list_raw_file_lock.by_ref(),
-                    (new_stats.word_list_raw.join("\n") + "\n").as_bytes(),
-                )
-                .expect("Failed to write word list raw file");
-                stats
-                    .write()
-                    .expect("Failed to get stats writer")
-                    .combine(new_stats);
+                process_lines(
+                    lines,
+                    &tokenizer,
+                    word_list_raw_file.clone(),
+                    stats.clone(),
+                    file_count,
+                    dir_count,
+                );
             }
             AnalysisType::Any => {
                 if let Ok(buffered_plain_line_reader) =
                     file_handler::BufferedPlainLineReader::new(&file_path)
                 {
                     buffered_plain_line_reader.par_bridge().for_each(|lines| {
-                        let morpheme_surfaces = run_tokenization(&lines, &tokenizer);
-                        let new_stats = stats_handler::get_stats(
+                        process_lines(
                             lines,
-                            morpheme_surfaces,
+                            &tokenizer,
+                            word_list_raw_file.clone(),
+                            stats.clone(),
                             file_count,
                             dir_count,
                         );
-                        let word_list_raw_file_lock = &mut word_list_raw_file
-                            .write()
-                            .expect("Failed to get word_list_raw writer");
-                        std::io::Write::write_all(
-                            word_list_raw_file_lock.by_ref(),
-                            (new_stats.word_list_raw.join("\n") + "\n").as_bytes(),
-                        )
-                        .expect("Failed to write word list raw file");
-                        stats
-                            .write()
-                            .expect("Failed to get stats writer")
-                            .combine(new_stats);
                     });
                 }
             }
@@ -173,6 +151,30 @@ fn main() {
         kanji_occurrence_list_formatted.as_bytes(),
     )
     .expect("Failed to write kanji list file");
+}
+
+fn process_lines(
+    lines: Vec<String>,
+    tokenizer: &StatelessTokenizer<&JapaneseDictionary>,
+    word_list_raw_file: Arc<RwLock<File>>,
+    stats: Arc<RwLock<AnalysisStats>>,
+    file_count: usize,
+    dir_count: usize,
+) {
+    let morpheme_surfaces = run_tokenization(&lines, &tokenizer);
+    let new_stats = stats_handler::get_stats(lines, morpheme_surfaces, file_count, dir_count);
+    let word_list_raw_file_lock = &mut word_list_raw_file
+        .write()
+        .expect("Failed to get word_list_raw writer");
+    std::io::Write::write_all(
+        word_list_raw_file_lock.by_ref(),
+        (new_stats.word_list_raw.join("\n") + "\n").as_bytes(),
+    )
+    .expect("Failed to write word list raw file");
+    stats
+        .write()
+        .expect("Failed to get stats writer")
+        .combine(new_stats);
 }
 
 fn run_tokenization(
