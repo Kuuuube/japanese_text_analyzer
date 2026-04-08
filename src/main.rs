@@ -1,6 +1,11 @@
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    io::Read,
+    sync::{Arc, RwLock},
+};
 
 use args_parser::AnalysisType;
+use rayon::iter::{ParallelBridge, ParallelIterator};
 use sudachi::{
     analysis::stateless_tokenizer::StatelessTokenizer, dic::dictionary::JapaneseDictionary,
 };
@@ -48,47 +53,66 @@ fn main() {
 
     println!("Processing files, running tokenizer, and analyzing results");
     let start_time = std::time::Instant::now();
-    let mut stats = AnalysisStats::default();
-    let mut word_list_raw_file =
-        std::fs::File::create(&"word_list_raw.csv").expect("Failed to create word list raw file");
+    let stats = Arc::new(RwLock::new(AnalysisStats::default()));
+    let word_list_raw_file = Arc::new(RwLock::new(
+        std::fs::File::create(&"word_list_raw.csv").expect("Failed to create word list raw file"),
+    ));
     for file_path in files {
         match parsed_args.analysis_type {
             AnalysisType::MokuroJson => {
                 let lines = file_handler::get_json_file_data(file_path);
                 let morpheme_surfaces = run_tokenization(&lines, &tokenizer);
                 let new_stats = get_stats(lines, morpheme_surfaces, file_count, dir_count);
+                let word_list_raw_file_lock = &mut word_list_raw_file
+                    .write()
+                    .expect("Failed to get word_list_raw writer");
                 std::io::Write::write_all(
-                    &mut word_list_raw_file,
+                    word_list_raw_file_lock.by_ref(),
                     (new_stats.word_list_raw.join("\n") + "\n").as_bytes(),
                 )
                 .expect("Failed to write word list raw file");
-                stats.combine(new_stats);
+                stats
+                    .write()
+                    .expect("Failed to get stats writer")
+                    .combine(new_stats);
             }
             AnalysisType::Mokuro => {
                 let lines = file_handler::get_mokuro_file_data(file_path);
                 let morpheme_surfaces = run_tokenization(&lines, &tokenizer);
                 let new_stats = get_stats(lines, morpheme_surfaces, file_count, dir_count);
+                let word_list_raw_file_lock = &mut word_list_raw_file
+                    .write()
+                    .expect("Failed to get word_list_raw writer");
                 std::io::Write::write_all(
-                    &mut word_list_raw_file,
+                    word_list_raw_file_lock.by_ref(),
                     (new_stats.word_list_raw.join("\n") + "\n").as_bytes(),
                 )
                 .expect("Failed to write word list raw file");
-                stats.combine(new_stats);
+                stats
+                    .write()
+                    .expect("Failed to get stats writer")
+                    .combine(new_stats);
             }
             AnalysisType::Any => {
                 if let Ok(buffered_plain_line_reader) =
                     file_handler::BufferedPlainLineReader::new(&file_path)
                 {
-                    for lines in buffered_plain_line_reader {
+                    buffered_plain_line_reader.par_bridge().for_each(|lines| {
                         let morpheme_surfaces = run_tokenization(&lines, &tokenizer);
                         let new_stats = get_stats(lines, morpheme_surfaces, file_count, dir_count);
+                        let word_list_raw_file_lock = &mut word_list_raw_file
+                            .write()
+                            .expect("Failed to get word_list_raw writer");
                         std::io::Write::write_all(
-                            &mut word_list_raw_file,
+                            word_list_raw_file_lock.by_ref(),
                             (new_stats.word_list_raw.join("\n") + "\n").as_bytes(),
                         )
                         .expect("Failed to write word list raw file");
-                        stats.combine(new_stats);
-                    }
+                        stats
+                            .write()
+                            .expect("Failed to get stats writer")
+                            .combine(new_stats);
+                    });
                 }
             }
         };
@@ -97,6 +121,8 @@ fn main() {
         "Tokenizer and analysis finished ({}ms)",
         start_time.elapsed().as_millis()
     );
+
+    let stats = stats.read().expect("Failed to get stats reader");
 
     let format_specific_stats = match parsed_args.analysis_type {
         AnalysisType::MokuroJson => format!(
