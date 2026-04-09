@@ -188,6 +188,8 @@ fn run_tokenization(
 ) -> Vec<String> {
     let mut morpheme_surfaces: Vec<String> = Default::default();
     for line in lines {
+        // StatelessTokenizer's tokenize constructs a new tokenizer and clones the dict every time it runs but this is extremely cheap
+        // StatefulTokenizer must be consumed to get out the morphemes so it is not any better to use a stateful one, it would have to be reconstructed every time anyways
         let morphemes = match sudachi::analysis::Tokenize::tokenize(
             tokenizer,
             line,
