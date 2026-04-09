@@ -123,7 +123,7 @@ pub fn filter_blacklisted(words: Vec<String>) -> Vec<String> {
         .collect();
 }
 
-fn check_if_ascii(codepoint: u32) -> bool {
+const fn check_if_ascii(codepoint: u32) -> bool {
     //ascii goes all the way to 0x0000 and codepoints cannot be negative
     if codepoint <= 0x007F {
         return true;
@@ -131,7 +131,7 @@ fn check_if_ascii(codepoint: u32) -> bool {
     return false;
 }
 
-fn check_if_japanese(codepoint: u32) -> bool {
+const fn check_if_japanese(codepoint: u32) -> bool {
     //Kanji
     if check_if_kanji(codepoint) ||
     //Hiragana (punctuation excluded: U+3099..U+309E; full range: U+3040..U+309F)
@@ -152,7 +152,7 @@ fn check_if_japanese(codepoint: u32) -> bool {
     return false;
 }
 
-fn check_if_kanji(codepoint: u32) -> bool {
+const fn check_if_kanji(codepoint: u32) -> bool {
     //CJK Unified Ideographs
     if codepoint >= 0x4E00 && codepoint <= 0x9FFF ||
     //CJK Unified Ideographs Extension A

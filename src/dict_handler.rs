@@ -12,7 +12,7 @@ pub fn make_sudachi_dict() -> Result<JapaneseDictionary, Box<dyn std::error::Err
     return Ok(dictionary);
 }
 
-pub fn get_mode() -> sudachi::analysis::Mode {
+pub const fn get_mode() -> sudachi::analysis::Mode {
     /* Mode reference for sudachi system_full.dic
        A：医薬/品/安全/管理/責任/者
        B：医薬品/安全/管理/責任者
