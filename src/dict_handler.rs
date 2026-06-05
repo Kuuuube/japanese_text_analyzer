@@ -9,7 +9,7 @@ pub fn make_sudachi_dict() -> Result<JapaneseDictionary, Box<dyn std::error::Err
     let config = sudachi::config::Config::new_embedded()?;
     let dictionary =
         JapaneseDictionary::from_cfg_storage_with_embedded_chardef(&config, dictionary_file_data)?;
-    return Ok(dictionary);
+    Ok(dictionary)
 }
 
 pub const fn get_mode() -> sudachi::analysis::Mode {
@@ -35,12 +35,12 @@ pub const fn get_mode() -> sudachi::analysis::Mode {
        B：Nearly perfect at creating words definition dictionaries will contain. In rare cases it may create a compound word that is hard to find.
        C：In some cases can create ridiculously long compound words that no definition dictionaries will contain.
     */
-    return sudachi::analysis::Mode::B;
+    sudachi::analysis::Mode::B
 }
 
 fn decode_zstd(data: &[u8]) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
-    let bound = zstd_safe::decompress_bound(&data).expect("zstd_safe::decompress_bound failed");
+    let bound = zstd_safe::decompress_bound(data).expect("zstd_safe::decompress_bound failed");
     let mut decompressed: Vec<u8> = Vec::with_capacity(bound.try_into()?);
-    zstd_safe::decompress(&mut decompressed, &data).expect("zstd_safe::decompress failed");
-    return Ok(decompressed);
+    zstd_safe::decompress(&mut decompressed, data).expect("zstd_safe::decompress failed");
+    Ok(decompressed)
 }

@@ -59,7 +59,7 @@ fn main() {
     let start_time = std::time::Instant::now();
     let stats = Arc::new(Mutex::new(stats_handler::AnalysisStats::default()));
     let word_list_raw_file = Arc::new(Mutex::new(
-        std::fs::File::create(&"word_list_raw.csv").expect("Failed to create word list raw file"),
+        std::fs::File::create("word_list_raw.csv").expect("Failed to create word list raw file"),
     ));
 
     let process_closure = |lines| {
@@ -76,16 +76,16 @@ fn main() {
     let files_iter_closure = |file_path: &std::path::PathBuf| {
         match parsed_args.analysis_type {
             AnalysisType::MokuroJson => {
-                let lines = file_handler::get_json_file_data(&file_path);
+                let lines = file_handler::get_json_file_data(file_path);
                 process_closure(lines);
             }
             AnalysisType::Mokuro => {
-                let lines = file_handler::get_mokuro_file_data(&file_path);
+                let lines = file_handler::get_mokuro_file_data(file_path);
                 process_closure(lines);
             }
             AnalysisType::Any => {
                 if let Ok(buffered_plain_line_reader) =
-                    file_handler::BufferedPlainLineReader::new(&file_path)
+                    file_handler::BufferedPlainLineReader::new(file_path)
                 {
                     if parsed_args.singlethreaded {
                         buffered_plain_line_reader.for_each(process_closure);
@@ -116,7 +116,7 @@ fn main() {
     println!("{}", formatted_stats);
 
     let mut stats_file =
-        std::fs::File::create(&"analysis.txt").expect("Failed to create stats file");
+        std::fs::File::create("analysis.txt").expect("Failed to create stats file");
     std::io::Write::write_all(&mut stats_file, formatted_stats.as_bytes())
         .expect("Failed to write stats file");
 
@@ -130,7 +130,7 @@ fn main() {
             .join("\n");
 
     let mut word_list_file =
-        std::fs::File::create(&"word_list.csv").expect("Failed to create word list file");
+        std::fs::File::create("word_list.csv").expect("Failed to create word list file");
     std::io::Write::write_all(
         &mut word_list_file,
         word_occurrence_list_formatted.as_bytes(),
@@ -147,7 +147,7 @@ fn main() {
             .join("\n");
 
     let mut kanji_list_file =
-        std::fs::File::create(&"kanji_list.csv").expect("Failed to create kanji list file");
+        std::fs::File::create("kanji_list.csv").expect("Failed to create kanji list file");
     std::io::Write::write_all(
         &mut kanji_list_file,
         kanji_occurrence_list_formatted.as_bytes(),
@@ -163,7 +163,7 @@ fn process_lines(
     file_count: usize,
     dir_count: usize,
 ) {
-    let morpheme_surfaces = run_tokenization(&lines, &tokenizer);
+    let morpheme_surfaces = run_tokenization(&lines, tokenizer);
     let new_stats = stats_handler::get_stats(lines, morpheme_surfaces, file_count, dir_count);
     {
         let word_list_raw_file_lock = &mut word_list_raw_file
@@ -206,5 +206,5 @@ fn run_tokenization(
             morpheme_surfaces.push(morpheme.surface().to_string());
         }
     }
-    return morpheme_surfaces;
+    morpheme_surfaces
 }

@@ -2,15 +2,12 @@ use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 use std::path::{Path, PathBuf};
 
-pub fn count_directories(filepaths: &Vec<PathBuf>) -> usize {
+pub fn count_directories(filepaths: &[PathBuf]) -> usize {
     return filepaths
         .iter()
         .fold(HashSet::new(), |mut map: HashSet<&Path>, x: &PathBuf| {
-            match x.parent() {
-                Some(some) => {
-                    map.insert(some);
-                }
-                None => {}
+            if let Some(some) = x.parent() {
+                map.insert(some);
             }
             map
         })
@@ -18,14 +15,12 @@ pub fn count_directories(filepaths: &Vec<PathBuf>) -> usize {
 }
 
 pub fn generate_occurrence_list<T: ToOwned<Owned = T> + Eq + Hash>(
-    morpheme_surfaces: &Vec<T>,
+    morpheme_surfaces: &[T],
 ) -> HashMap<T, u64> {
-    return morpheme_surfaces
-        .into_iter()
-        .fold(HashMap::new(), |mut map, c| {
-            *map.entry(c.to_owned()).or_insert(0) += 1;
-            map
-        });
+    morpheme_surfaces.iter().fold(HashMap::new(), |mut map, c| {
+        *map.entry(c.to_owned()).or_insert(0) += 1;
+        map
+    })
 }
 
 pub fn sort_occurrence_list<T: ToString>(occurrence_list: HashMap<T, u64>) -> Vec<(String, u64)> {
@@ -33,18 +28,18 @@ pub fn sort_occurrence_list<T: ToString>(occurrence_list: HashMap<T, u64>) -> Ve
         .iter()
         .map(|x| (x.0.to_string(), x.1.to_owned()))
         .collect();
-    occurrence_list_sorted.sort_by(|a, b| b.1.cmp(&a.1));
-    return occurrence_list_sorted;
+    occurrence_list_sorted.sort_by_key(|x| std::cmp::Reverse(x.1));
+    occurrence_list_sorted
 }
 
 pub fn find_single_occurrences<T: ToOwned<Owned = T> + Eq + Hash>(
     occurrence_list: &HashMap<T, u64>,
 ) -> HashSet<T> {
-    return occurrence_list
+    occurrence_list
         .iter()
         .filter(|x| *x.1 == 1)
         .map(|x| x.0.to_owned())
-        .collect();
+        .collect()
 }
 
 pub fn get_avg_len(lines: Vec<String>) -> Option<BoxLength> {
@@ -56,12 +51,12 @@ pub fn get_avg_len(lines: Vec<String>) -> Option<BoxLength> {
         lens.push(line.chars().count())
     }
     lens.sort();
-    return Some(BoxLength {
+    Some(BoxLength {
         average: usize::checked_div(lens.iter().sum::<usize>(), parent_len).unwrap_or_default(),
         shortest: *lens.first()?,
         longest: *lens.last()?,
         length: lines_length,
-    });
+    })
 }
 
 #[derive(Default, Debug)]
@@ -96,31 +91,31 @@ pub fn filter_duplicate_ascii(input_string: String) -> Vec<String> {
     }
     result_strings.push(current_chars.into_iter().collect());
 
-    return result_strings;
+    result_strings
 }
 
 pub fn filter_non_japanese(chars: Vec<char>) -> Vec<char> {
-    return chars
+    chars
         .into_iter()
         .filter(|x| check_if_japanese(*x as u32))
-        .collect();
+        .collect()
 }
 
 pub fn filter_non_kanji<T>(chars: T) -> T
 where
     T: IntoIterator<Item = char> + std::iter::FromIterator<char>,
 {
-    return chars
+    chars
         .into_iter()
         .filter(|x| check_if_kanji(*x as u32))
-        .collect();
+        .collect()
 }
 
 pub fn filter_blacklisted(words: Vec<String>) -> Vec<String> {
-    return words
+    words
         .into_iter()
-        .filter(|x| filter_non_japanese(x.chars().collect()).len() > 0)
-        .collect();
+        .filter(|x| !filter_non_japanese(x.chars().collect()).is_empty())
+        .collect()
 }
 
 const fn check_if_ascii(codepoint: u32) -> bool {
@@ -128,7 +123,7 @@ const fn check_if_ascii(codepoint: u32) -> bool {
     if codepoint <= 0x007F {
         return true;
     }
-    return false;
+    false
 }
 
 const fn check_if_japanese(codepoint: u32) -> bool {
@@ -149,7 +144,7 @@ const fn check_if_japanese(codepoint: u32) -> bool {
     {
         return true;
     }
-    return false;
+    false
 }
 
 const fn check_if_kanji(codepoint: u32) -> bool {
@@ -176,18 +171,18 @@ const fn check_if_kanji(codepoint: u32) -> bool {
     {
         return true;
     }
-    return false;
+    false
 }
 
 pub fn get_fancy_percentage(base: f64, percent: f64) -> String {
-    return format!("{:.2}%", percent / base * 100.0);
+    format!("{:.2}%", percent / base * 100.0)
 }
 
 pub fn bounded_min<T: PartialEq + PartialOrd + Ord>(val1: T, val2: T, min: T) -> T {
     if val1 < val2 {
         return T::max(val1, min);
     }
-    return T::max(val2, min);
+    T::max(val2, min)
 }
 
 pub fn merge_hashmap<T: Eq + Hash>(
@@ -197,5 +192,5 @@ pub fn merge_hashmap<T: Eq + Hash>(
     for (k, v) in hashmap2 {
         let _ = *hashmap1.entry(k).and_modify(|x| *x += v).or_insert(v);
     }
-    return hashmap1;
+    hashmap1
 }

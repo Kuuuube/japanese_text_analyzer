@@ -19,7 +19,7 @@ impl<T: std::default::Default, F: FnOnce(T) -> T> MutexExtensions<T, F> for Mute
     fn replace_with(&self, f: F) -> Result<(), PoisonError<F>> {
         match self.lock() {
             Ok(mut guard) => {
-                let mutex_inner = mem::replace(&mut *guard, T::default());
+                let mutex_inner = std::mem::take(&mut *guard);
                 let _ = mem::replace(&mut *guard, f(mutex_inner));
                 Ok(())
             }

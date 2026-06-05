@@ -25,7 +25,7 @@ pub fn get_stats(
 
     let box_length = analyzer::get_avg_len(lines).unwrap_or_default();
 
-    return AnalysisStats {
+    AnalysisStats {
         char_count: japanese_characters.len() as u64,
         kanji_count: kanji_characters.len() as u64,
         unique_kanji: HashSet::from_iter(unique_kanji_characters.iter().cloned()),
@@ -41,9 +41,9 @@ pub fn get_stats(
         box_count: box_length.length as u64,
 
         word_list_raw: filtered_morphemes,
-        kanji_occurrence_list: kanji_occurrence_list,
-        word_occurrence_list: word_occurrence_list,
-    };
+        kanji_occurrence_list,
+        word_occurrence_list,
+    }
 }
 
 #[derive(Debug)]
@@ -98,7 +98,7 @@ impl AnalysisStats {
         let mut new_stats1_unique_words = self.unique_words;
         new_stats1_unique_words.extend(stats2.unique_words);
 
-        return AnalysisStats {
+        AnalysisStats {
             char_count: self.char_count + stats2.char_count,
             kanji_count: self.kanji_count + stats2.kanji_count,
             unique_kanji: new_stats1_unique_kanji,
@@ -130,7 +130,7 @@ impl AnalysisStats {
                 self.word_occurrence_list,
                 stats2.word_occurrence_list,
             ),
-        };
+        }
     }
 
     pub fn format_fancy(&mut self, parsed_args: JapaneseTextAnalyzerArgs) -> String {
@@ -197,6 +197,6 @@ impl AnalysisStats {
             format_specific_stats,
         );
 
-        return formatted_stats;
+        formatted_stats
     }
 }

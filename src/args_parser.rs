@@ -38,7 +38,7 @@ pub fn get_args(args: Vec<String>) -> JapaneseTextAnalyzerArgs {
             japanese_text_analyzer_args.start_path = arg;
         }
     }
-    return japanese_text_analyzer_args;
+    japanese_text_analyzer_args
 }
 
 #[derive(Debug)]

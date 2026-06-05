@@ -20,7 +20,7 @@ impl Utf8BufReader {
     pub fn new(file_path: &PathBuf, buffer_size: usize) -> Result<Self, std::io::Error> {
         let file = File::open(file_path)?;
         Ok(Self {
-            file: file,
+            file,
             buffer: vec![0u8; buffer_size],
             end_of_file: false,
             read_unsafe: false,
@@ -46,17 +46,17 @@ impl Iterator for Utf8BufReader {
         self.end_of_file = bytes_filled < buffer_length;
         self.buffer.resize(bytes_filled, b'\0');
         let (file_contents, seek_position) = parse_utf8_buffer(&self.buffer, self.read_unsafe);
-        if file_contents.len() == 0 {
+        if file_contents.is_empty() {
             return None;
         }
         let _ = self.file.seek(std::io::SeekFrom::Current(
             seek_position as i64 - buffer_length as i64,
         ));
-        return Some(file_contents);
+        Some(file_contents)
     }
 }
 
-fn parse_utf8_buffer(file_buffer: &Vec<u8>, read_unsafe: bool) -> (String, usize) {
+fn parse_utf8_buffer(file_buffer: &[u8], read_unsafe: bool) -> (String, usize) {
     let mut seek_position: usize = file_buffer.len();
     let utf8_string = match std::str::from_utf8(file_buffer) {
         Ok(ok) => ok.to_string(),
@@ -64,7 +64,7 @@ fn parse_utf8_buffer(file_buffer: &Vec<u8>, read_unsafe: bool) -> (String, usize
             seek_position = err.valid_up_to();
             if seek_position == 0 && read_unsafe {
                 seek_position = file_buffer.len();
-                unsafe { std::str::from_utf8_unchecked(&file_buffer) }.to_string()
+                unsafe { std::str::from_utf8_unchecked(file_buffer) }.to_string()
             } else {
                 //should never panic as long as seek_position = err.valid_up_to()
                 std::str::from_utf8(&file_buffer[0..seek_position])
