@@ -28,6 +28,13 @@ pub fn get_args(args: Vec<String>) -> JapaneseTextAnalyzerArgs {
                 _ => {}
             }
         } else {
+            // disable extension type check if user paths to a single file
+            if let Ok(metadata) = std::fs::metadata(&arg)
+                && metadata.is_file()
+            {
+                japanese_text_analyzer_args.analysis_type = AnalysisType::Any;
+                japanese_text_analyzer_args.extension = "".to_string();
+            }
             japanese_text_analyzer_args.start_path = arg;
         }
     }
